@@ -1,0 +1,51 @@
+form {
+    display: flex;
+    flex-direction: column;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  label {
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+    text-align: left;
+  }
+  
+  input, select {
+    margin-bottom: 16px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  
+  button[type="submit"] {
+    padding: 12px;
+    background-color: var(--purple, #330036); /* Используем фиолетовый из :root */
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  button[type="submit"]:hover {
+    background-color: var(--purple-light, #815dac); /* Светло-фиолетовый */
+  }
+  
+  form input, form select {
+    text-align: left;
+    outline: none;
+  }
+  
+  form input:focus, form select:focus {
+    border-color: var(--purple, #330036);
+  }
+  
