@@ -1,6 +1,9 @@
 .main-content {
     flex: 1;
+<<<<<<< HEAD
     align-items:flex-start;
+=======
+>>>>>>> 5f58b95bc604b85d23bcd1cd352f9d1d19d7ccab
 }
 
 .cards {

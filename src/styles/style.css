@@ -1,18 +1,13 @@
-/* Import Google font - Poppins */
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
+/* Общие стили */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Poppins", sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
 }
-:root {
-    --white-color: #fff;
-    --blue-color: #4070f4;
-    --grey-color: #707070;
-    --grey-color-light: #aaa;
-}
+
 body {
+<<<<<<< HEAD
     background-color: #e7f2fd;
     transition: all 0.5s ease;
 }
@@ -235,113 +230,29 @@ body.dark {
     .sidebar.close .bottom_content {
         left: -100%;
     }
+=======
+  background-color: #f5efed;
+  /*#fff;*/
+  color: #f5efed;
+  /*#333;*/
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+>>>>>>> 5f58b95bc604b85d23bcd1cd352f9d1d19d7ccab
 }
 
-.table {
-    width: 100%;
-    border: none;
-    margin-bottom: 20px;
-    border-collapse: separate;
-}
-.table thead th {
-    font-weight: bold;
-    text-align: left;
-    border: none;
-    padding: 10px 15px;
-    background: #EDEDED;
-    font-size: 14px;
-    border-top: 1px solid #ddd;
-}
-.table tr th:first-child, .table tr td:first-child {
-    border-left: 1px solid #ddd;
-}
-.table tr th:last-child, .table tr td:last-child {
-    border-right: 1px solid #ddd;
-}
-.table thead tr th:first-child {
-    border-radius: 20px 0 0 0;
-}
-.table thead tr th:last-child {
-    border-radius: 0 20px 0 0;
-}
-.table tbody td {
-    text-align: left;
-    border: none;
-    padding: 10px 15px;
-    font-size: 14px;
-    vertical-align: top;
-    white-space: normal;
-    word-wrap: break-word;
-}
-.table tbody tr:nth-child(even) {
-    background: #F8F8F8;
-}
-.table tbody tr:last-child td{
-    border-bottom: 1px solid #ddd;
-}
-.table tbody tr:last-child td:first-child {
-    border-radius: 0 0 0 20px;
-}
-.table tbody tr:last-child td:last-child {
-    border-radius: 0 0 20px 0;
+/* Фиолетовые акценты */
+:root {
+  --purple: #330036;
+  /*#6a0dad;#815dac;#ffd6e2;#f0d3f7;*/
+  --purple-light: #dcd0ff;
 }
 
-.name-ref{
-    text-decoration: none;
-}
-.main_content{
-    margin-left:260px;
-    margin-top: 100px;
-
-}
-
-.nav_link_selected{
-    display: flex;
-    align-items: center;
-    width: 100%;
-    padding: 4px 15px;
-    border-radius: 8px;
-    text-decoration: none;
-    color: var(--grey-color);
-    white-space: nowrap;
-    background-color:#ddd;
-}
-
-/* Модальное окно */
-.modal {
-    display: none; /* Скрыто по умолчанию */
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgb(0,0,0); /* Черный фон */
-    background-color: rgba(0,0,0,0.4); /* Полупрозрачный фон */
-}
-
-/* Модальный контент */
-.modal-content {
-    background-color: #fefefe;
-    margin: 15% auto; /* 15% сверху и автоматически по бокам */
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%; /* Ширина */
-    max-width: 500px; /* Максимальная ширина */
-}
-
-/* Кнопка закрытия */
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
+/* Контейнер для фильтров и основного контента */
+.container {
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  margin-top: 20px;
+  gap: 20px;
 }
