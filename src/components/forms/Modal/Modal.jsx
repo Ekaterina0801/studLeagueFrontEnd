@@ -2,13 +2,15 @@ import React from "react";
 import './style.css';
 
 function Modal({ show, onClose, children }) {
-  if (!show) return null; // If `show` is false, do not render anything
+  if (!show) return null;
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <button onClick={onClose}>Close</button>
-        {children}
+        <button className="modal-close" onClick={onClose}>
+          &times;
+        </button>
+        <div className="modal-body">{children}</div>
       </div>
     </div>
   );

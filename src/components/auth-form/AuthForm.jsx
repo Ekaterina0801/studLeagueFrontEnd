@@ -1,5 +1,7 @@
 import React,  {useState } from 'react';
 import './style.css';
+import axios from 'axios';
+import { API_URL } from '../../api/apiHeaders';
 
 const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -12,6 +14,7 @@ const AuthForm = () => {
   });
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
@@ -38,12 +41,51 @@ const AuthForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      // TODO: Add API call here
-      setMessage(isLogin ? 'Logging in...' : 'Registering...');
-      console.log(formData);
+      setLoading(true);
+      setMessage('');
+      
+      try {
+        let response;
+        if (isLogin) {
+          // Авторизация
+          response = await axios.post(`${API_URL}/auth/sign-in`, {
+            username: formData.username,
+            password: formData.password
+          });
+
+          setMessage('Login successful!');
+          
+
+          const { accessToken, refreshToken, refreshTokenExpiresAt } = response.data;
+          console.log(accessToken);
+          console.log(refreshToken);
+          console.log(refreshTokenExpiresAt);
+          // Сохраняем токены и срок действия
+          localStorage.setItem('accessToken', accessToken);
+          localStorage.setItem('refreshToken', refreshToken);
+          localStorage.setItem('expiresAt', refreshTokenExpiresAt);
+          window.location.href="/teams";
+
+        } else {
+          // Регистрация
+          response = await axios.post(`${API_URL}/auth/sign-up`, {
+            username: formData.username,
+            password: formData.password,
+            email: formData.email,
+            fullname: formData.fullname
+          });
+
+          setMessage('Registration successful!');
+        }
+      } catch (error) {
+        console.error(error);
+        setMessage(error.response?.data?.message || 'Something went wrong, please try again.');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -64,7 +106,7 @@ const AuthForm = () => {
           />
           {errors.username && <span className="error">{errors.username}</span>}
         </div>
-        
+
         <div>
           <label htmlFor="password">Password</label>
           <input
@@ -92,7 +134,7 @@ const AuthForm = () => {
               />
               {errors.confirm && <span className="error">{errors.confirm}</span>}
             </div>
-            
+
             <div>
               <label htmlFor="fullname">Full Name</label>
               <input
@@ -121,8 +163,11 @@ const AuthForm = () => {
           </>
         )}
 
-        <button type="submit">{isLogin ? 'Login' : 'Register'}</button>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Submitting...' : isLogin ? 'Login' : 'Register'}
+        </button>
       </form>
+
       <div className="toggle-link" onClick={toggleForm}>
         {isLogin ? 'New here? Register' : 'Already have an account? Login'}
       </div>

@@ -5,13 +5,22 @@ import { NavLink } from "react-router-dom";
 import { FaChevronDown } from 'react-icons/fa';
 import useLeagues from '../../hooks/useLeagues';
 import { saveLeagueId } from '../../hooks/cookieUtils';
+import { getAuthHeaders } from '../../api/apiHeaders';
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 
 const Navbar = () => {
   const { leagues, selectedLeague, setSelectedLeague, isLoading, error } = useLeagues(); 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    // Проверяем наличие accessToken для определения статуса авторизации
+    const accessToken = localStorage.getItem('accessToken');
+    setIsAuthenticated(!!accessToken);
+  }, []);
 
   const handleLeagueChange = (leagueId) => {
     setSelectedLeague(leagueId); // Update selected league
@@ -40,7 +49,9 @@ const Navbar = () => {
         <NavLink to={`/teams`} className={({ isActive }) => (isActive ? "active-link" : "")}>Команды</NavLink>
         <NavLink to={`/tournaments`} className={({ isActive }) => (isActive ? "active-link" : "")}>Турниры</NavLink>
         <NavLink to={`/results`} className={({ isActive }) => (isActive ? "active-link" : "")}>Результаты</NavLink>
-        <NavLink to="/profile" className={({ isActive }) => (isActive ? "active-link" : "")}>Профиль</NavLink>
+        <NavLink to={isAuthenticated ? "/profile" : "/sign-in"} className={({ isActive }) => (isActive ? "active-link" : "")}>
+          {isAuthenticated ? "Профиль" : "Авторизация"}
+        </NavLink>
       </div>
       <div className="league-selector" ref={dropdownRef}>
         <div

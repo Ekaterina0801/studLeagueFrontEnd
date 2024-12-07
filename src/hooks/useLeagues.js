@@ -1,5 +1,5 @@
 import { useState, useEffect, Profiler } from 'react';
-import { getLeagues } from '../controllers/apiLeagues';
+import { getLeagues } from '../api/apiLeagues';
 import Cookies from 'js-cookie';
 const useLeagues = () => {
   const [leagues, setLeagues] = useState([]);

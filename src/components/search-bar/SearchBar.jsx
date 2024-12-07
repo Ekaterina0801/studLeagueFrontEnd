@@ -1,10 +1,32 @@
 import React from 'react';
 import './style.css';
+import { useState } from 'react';
 
-const SearchBar = () => (
-    <div className="search-bar">
-        <input type="text" placeholder="Поиск" />
-    </div>
-);
-
-export default SearchBar;
+const SearchBar = ({ onSearch }) => {
+    const [searchInput, setSearchInput] = useState("");
+  
+    const handleSearch = (e) => {
+        e.preventDefault();
+      onSearch(searchInput); 
+    };
+  
+    return (
+      <div className="search-bar">
+        <div className="search-container">
+          <input
+            type="text"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)} 
+            placeholder="Поиск"
+          />
+          <button className="search-button" onClick={handleSearch}>
+            🔍
+          </button>
+        </div>
+      </div>
+    );
+  };
+  
+  export default SearchBar;
+  
+  

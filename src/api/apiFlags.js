@@ -1,8 +1,6 @@
 import axios from 'axios';
 import { withAuth, getAuthHeaders, API_URL } from './apiHeaders';
 
-const API_URL = "http://localhost:8080/api"; // Замените на ваш API URL
-
 // Получить все флаги
 export const getFlags = async () => {
     return withAuth(async () => {
@@ -29,8 +27,11 @@ export const deleteFlag = async (id) => {
 
 // Создать новый флаг
 export const addNewFlag = async (flagDto) => {
-    return withAuth(async () => {
-        const response = await axios.post(`${API_URL}/flags`, flagDto, getAuthHeaders());
+    withAuth(async (accessToken) => {
+        const response = await axios.post(`${API_URL}/flags`, flagDto, {
+            headers: getAuthHeaders(accessToken),
+        });
+        console.log('response',response);
         return response.data;
     });
 };

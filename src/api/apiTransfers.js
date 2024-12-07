@@ -19,10 +19,20 @@ export const getTransferById = async (id) => {
 
 // Создать новый трансфер
 export const addNewTransfer = async (transferDTO) => {
-    return withAuth(async () => {
-        const response = await axios.post(`${API_URL}/transfers`, transferDTO, getAuthHeaders());
-        return response.data;
-    });
+    try {
+        console.log('dto', transferDTO);
+        return withAuth(async (accessToken) => {
+            console.log(accessToken);
+            const response = await axios.post(`${API_URL}/transfers`, transferDTO, {
+                headers: getAuthHeaders(accessToken),
+            });
+            console.log('response',response);
+            return response.data;
+        });
+    } catch (error) {
+        console.error('Ошибка при создании трансфера:', error);
+        throw error;
+    }
 };
 
 // Удалить трансфер по ID

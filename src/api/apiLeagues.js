@@ -44,12 +44,13 @@ export const changeSystemResult = async (leagueId, systemResultId) =>
     });
 
 // Добавить турнир в лигу
-export const addTournamentToLeague = async (leagueId, tournamentId) =>
+export const addTournamentToLeague = async (tournamentId,leagueId ) =>
+    
     withAuth(async (accessToken) => {
         const response = await axios.put(
             `${API_URL}/leagues/${leagueId}/tournaments/${tournamentId}`,
             null,
-            getAuthHeaders(accessToken)
+            { headers: getAuthHeaders(accessToken) }
         );
         return response.data;
     });

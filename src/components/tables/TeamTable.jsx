@@ -1,17 +1,31 @@
 import React from "react";
+import "./style.css"
 
-function TeamTable({ teams, leagueId }) {
+function TeamTable({ teams, leagueId, onSortChange, sortField, sortDirection }) {
   if (teams.length === 0) {
     return <p>Команд пока нет</p>;
   }
+
+  const getSortIndicator = (field) => {
+    if (sortField === field) {
+      return sortDirection === "asc" ? "▲" : "▼";
+    }
+    return "▲";
+  };
 
   return (
     <table className="table">
       <thead>
         <tr>
-          <th>№</th>
-          <th>МАК ID</th>
-          <th>Название</th>
+          <th>
+            № 
+          </th>
+          <th onClick={() => onSortChange("idSite")}>
+            МАК ID {getSortIndicator("idSite")}
+          </th>
+          <th onClick={() => onSortChange("teamName")}>
+            Название {getSortIndicator("teamName")}
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -30,4 +44,5 @@ function TeamTable({ teams, leagueId }) {
 }
 
 export default TeamTable;
+
 

@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { withAuth, getAuthHeaders, API_URL } from './apiHeaders';
-import axios from 'axios';
-import { API_URL, getAuthHeaders, withAuth } from './authHelpers';
+
 
 /**
  * Получить список игроков с фильтрацией и сортировкой.
@@ -11,12 +10,13 @@ import { API_URL, getAuthHeaders, withAuth } from './authHelpers';
 export const getPlayers = async (filters = {}) => {
     return withAuth(async (accessToken) => {
         const params = {
-            ...filters, // Фильтры включают name, surname, teamId, bornBefore, bornAfter, sortBy, sortOrder
+            ...filters,
         };
         const response = await axios.get(`${API_URL}/players`, {
             params,
             headers: getAuthHeaders(accessToken),
         });
+        console.log(response.data);
         return response.data;
     });
 };
@@ -39,11 +39,22 @@ export const getPlayerById = async (id) => {
  * @returns {Promise<Object>} - Созданный игрок.
  */
 export const addNewPlayer = async (playerDto) => {
-    return withAuth(async (accessToken) => {
-        const response = await axios.post(`${API_URL}/players`, playerDto, getAuthHeaders(accessToken));
-        return response.data;
-    });
+    try {
+        console.log('dto', playerDto);
+        return withAuth(async (accessToken) => {
+            console.log(accessToken);
+            const response = await axios.post(`${API_URL}/players`, playerDto, {
+                headers: getAuthHeaders(accessToken),
+            });
+            console.log('response',response);
+            return response.data;
+        });
+    } catch (error) {
+        console.error('Ошибка при создании новой команды:', error);
+        throw error;
+    }
 };
+
 
 /**
  * Удалить игрока по ID.

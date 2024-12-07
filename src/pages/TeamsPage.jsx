@@ -5,53 +5,49 @@ import SiteTeamForm from "../components/forms/SiteTeamForm";
 import TeamTable from "../components/tables/TeamTable";
 import MainContent from "../components/main-section/MainSection";
 import useTeams from "../hooks/useTeams";
-import Cookies from "js-cookie"; 
-function TeamsPage({ leagues = [] }) {
-  const [showModal, setShowModal] = useState(false);
-  const [newTeam, setNewTeam] = useState({ teamName: "", university: "" });
-  const [siteTeamId, setSiteTeamId] = useState("");
-  const [filters, setFilters] = useState({ leagueId: "" });
-  const [sort, setSort] = useState({ field: "teamName", direction: "asc" });
+import SearchBar from "../components/search-bar/SearchBar";
+import useManagerCheck from "../hooks/useManagerCheck";
+import { useModal } from "../hooks/useModal";
+import useSearch from "../hooks/useSearch";
+import useNewTeam from "../hooks/useNewTeam";
+import { useLeagueId } from "../hooks/useLeagueId";
+const TeamsPage = ({ leagues = [] }) => {
+  const [filters, setFilters] = useState({ leagueId: '' });
+  const [sort, setSort] = useState({ field: 'teamName', direction: 'asc' });
+  const [currentPage, setCurrentPage] = useState(0);
+  const [siteTeamId, setSiteTeamId] = useState('');
+  const { showModal, toggleModal } = useModal();
+  const { searchInput, handleSearch } = useSearch(); 
+  const { newTeam, handleChange, handleTeamSubmit } = useNewTeam(); 
 
-  // Эффект для получения ID лиги из cookies при монтировании компонента
+  const leagueId = useLeagueId(); 
   useEffect(() => {
-    const leagueIdFromCookie = Cookies.get("leagueId");
-    if (leagueIdFromCookie) {
-      setFilters({ leagueId: leagueIdFromCookie }); // Устанавливаем фильтр по ID лиги из cookies
+    if (leagueId) {
+      setFilters((prevFilters) => ({ ...prevFilters, leagueId: leagueId, name: searchInput }));
     }
-  }, []); // Этот эффект сработает один раз при монтировании
+  }, [searchInput, leagueId]);
 
-  // Печать текущих фильтров и проверка на правильность
-  useEffect(() => {
-    console.log("Current filters: ", filters);
-  }, [filters]);
+  const { teams, totalPages, isLoading, error } = useTeams(filters, sort, currentPage); 
 
-  // Получаем команды через хук
-  const { teams, isLoading, error } = useTeams(filters, sort);
-
-  const toggleModal = () => setShowModal(!showModal);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setNewTeam((prevTeam) => ({ ...prevTeam, [name]: value }));
-  };
-
-  const handleTeamSubmit = (e) => {
-    e.preventDefault();
-    console.log("Adding team:", newTeam);
-    toggleModal(); 
-  };
-
-  const handleSiteTeamSubmit = (e) => {
-    e.preventDefault();
-    console.log("Adding team from site with ID:", siteTeamId);
-    toggleModal(); 
-  };
+  const { isManager, errorManager } = useManagerCheck(leagueId);
+  if (errorManager) {
+    return <p>Error loading manager status: {errorManager.message}</p>;
+  }
 
   const handleSortChange = (field) => {
-    const newSortDirection = sort.field === field && sort.direction === "asc" ? "desc" : "asc";
-    setSort({ field, direction: newSortDirection });
+    const newDirection = sort.field === field && sort.direction === 'asc' ? 'desc' : 'asc';
+    setSort({ field, direction: newDirection });
   };
+
+  const handlePageChange = (page) => {
+    if (page !== currentPage) {
+      setCurrentPage(page);
+    }
+  };
+
+  if (!filters.leagueId) {
+    return <div>Выберите лигу для отображения команд.</div>;
+  }
 
   if (isLoading) {
     return <div>Загрузка команд...</div>;
@@ -64,25 +60,53 @@ function TeamsPage({ leagues = [] }) {
   return (
     <MainContent>
       <h2>Команды</h2>
-      <button onClick={toggleModal}>Добавить новую команду</button>
+      <SearchBar onSearch={handleSearch} />
+      {isManager && (
+        <button onClick={toggleModal}>Добавить новую команду</button>
+      )}
 
-      <Modal show={showModal} onClose={toggleModal}>
-        <h2>Добавление новой команды</h2>
-        <TeamForm newTeam={newTeam} leagues={leagues} onChange={handleChange} onSubmit={handleTeamSubmit} />
+      {showModal && (
+        <Modal show={showModal} onClose={toggleModal}>
+          <h2>Добавление новой команды</h2>
+          <TeamForm
+            newTeam={newTeam}
+            leagues={leagues}
+            onChange={handleChange}
+            onSubmit={handleTeamSubmit}
+          />
 
-        <h2>Добавить команду с сайта МАК</h2>
-        <SiteTeamForm siteTeamId={siteTeamId} onChange={(e) => setSiteTeamId(e.target.value)} onSubmit={handleSiteTeamSubmit} />
-      </Modal>
+          <h2>Добавить команду с сайта МАК</h2>
+          <SiteTeamForm
+            siteTeamId={siteTeamId}
+            onChange={(e) => setSiteTeamId(e.target.value)}
+            // Define `handleSiteTeamSubmit` if needed
+            onSubmit={handleSiteTeamSubmit}
+          />
+        </Modal>
+      )}
 
       <TeamTable
         teams={teams}
-        leagueId={filters.leagueId} // Передаем фильтр по ID лиги
+        leagueId={filters.leagueId}
         onSortChange={handleSortChange}
         sortField={sort.field}
         sortDirection={sort.direction}
       />
+
+      <div className="pagination">
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button
+            className="pageNumberButton"
+            key={index}
+            onClick={() => handlePageChange(index)}
+            disabled={index === currentPage}
+          >
+            {index + 1}
+          </button>
+        ))}
+      </div>
     </MainContent>
   );
-}
+};
 
 export default TeamsPage;

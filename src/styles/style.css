@@ -7,7 +7,6 @@
 }
 
 body {
-<<<<<<< HEAD
     background-color: #e7f2fd;
     transition: all 0.5s ease;
 }
@@ -230,15 +229,6 @@ body.dark {
     .sidebar.close .bottom_content {
         left: -100%;
     }
-=======
-  background-color: #f5efed;
-  /*#fff;*/
-  color: #f5efed;
-  /*#333;*/
-  display: flex;
-  flex-direction: column;
-  align-items: center;
->>>>>>> 5f58b95bc604b85d23bcd1cd352f9d1d19d7ccab
 }
 
 /* Фиолетовые акценты */

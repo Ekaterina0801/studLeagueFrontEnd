@@ -1,107 +1,85 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "../components/forms/Modal/Modal";
 import TournamentForm from "../components/forms/TournamentForm"
 import ExistingTournamentForm from "../components/forms/ExistingTournamentForm";
 import SiteTournamentForm from "../components/forms/SiteTournamentForm";
 import TournamentTable from "../components/tables/TournamentTable"
-import Cookies from 'js-cookie'; // Assuming you are using js-cookie for cookie management
+import useTournaments from "../hooks/useTournaments";
+import SearchBar from "../components/search-bar/SearchBar";
+import { useLeagueId } from "../hooks/useLeagueId";
+import { useModal } from "../hooks/useModal";
+import { useNewTournament } from "../hooks/useNewTournament";
+const TournamentsPage = () => {
+  const leagueId = useLeagueId();
+  const { isModalOpen, toggleModal } = useModal();
+  const { newTournament, handleChange, handleSubmit } = useNewTournament(leagueId);
 
-function TournamentsPage({ allTournaments }) {
-  const [showModal, setShowModal] = useState(false);
-  const [newTournament, setNewTournament] = useState({ name: "", dateOfStart: "", dateOfEnd: "", leagueId: "" });
+  const [searchInput, setSearchInput] = useState("");
   const [existingTournamentId, setExistingTournamentId] = useState("");
   const [siteTournamentId, setSiteTournamentId] = useState("");
-  const [filters, setFilters] = useState({ leagueId: "" });
+
+  const [filters, setFilters] = useState({ leagueId: leagueId });
   const [sort, setSort] = useState({ field: "name", direction: "asc" });
+  const [currentPage, setCurrentPage] = useState(0);
 
-  // Effect to get league ID from cookies when the component mounts
+  const { tournaments, totalPages, isLoading, error } = useTournaments(filters, sort, currentPage);
+  console.log('tourn',tournaments);
   useEffect(() => {
-    const leagueIdFromCookie = Cookies.get("leagueId");
-    if (leagueIdFromCookie) {
-      setFilters({ leagueId: leagueIdFromCookie }); // Set filter for league ID from cookies
+    if (leagueId) {
+      setFilters((prev) => ({ ...prev, leagueId }));
     }
-  }, []);
-
-  // Print current filters for debugging
-  useEffect(() => {
-    console.log("Current filters: ", filters);
-  }, [filters]);
-
-  // Fetch tournaments using a custom hook
-  const { tournaments, isLoading, error } = useTournaments(filters, sort);
-
-  const toggleModal = () => setShowModal(prev => !prev);
-
-  const handleNewTournamentChange = (e) => {
-    const { name, value } = e.target;
-    setNewTournament(prevTournament => ({ ...prevTournament, [name]: value }));
-  };
-
-  const handleNewTournamentSubmit = (e) => {
-    e.preventDefault();
-    console.log("Adding new tournament:", newTournament);
-    toggleModal(); 
-    // Add API call to save the tournament here
-  };
-
-  const handleExistingTournamentSubmit = (e) => {
-    e.preventDefault();
-    console.log("Adding existing tournament:", existingTournamentId);
-    toggleModal(); 
-    // Add API call to associate the existing tournament here
-  };
-
-  const handleSiteTournamentSubmit = (e) => {
-    e.preventDefault();
-    console.log("Adding tournament from site with ID:", siteTournamentId);
-    toggleModal(); 
-    // Add API call to fetch the tournament by ID here
+  }, [leagueId]);
+  
+  const handleSearch = (input) => {
+    setSearchInput(input);
+    setFilters((prevFilters) => ({ ...prevFilters, name: input }));
   };
 
   const handleSortChange = (field) => {
-    const newSortDirection = sort.field === field && sort.direction === "asc" ? "desc" : "asc";
-    setSort({ field, direction: newSortDirection });
+    const newDirection = sort.field === field && sort.direction === "asc" ? "desc" : "asc";
+    setSort({ field, direction: newDirection });
   };
 
-  if (isLoading) {
-    return <div>Загрузка турниров...</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
+  const handlePageChange = (page) => {
+    if (page !== currentPage) {
+      setCurrentPage(page);
+    }
+  };
 
   return (
     <div>
       <h2>Турниры</h2>
+      <SearchBar onSearch={handleSearch} />
       <button onClick={toggleModal}>Добавить новый или существующий турнир</button>
 
-      <Modal show={showModal} onClose={toggleModal}>
-        <h2>Добавление нового турнира</h2>
-        <TournamentForm 
-          newTournament={newTournament} 
-          onChange={handleNewTournamentChange} 
-          onSubmit={handleNewTournamentSubmit} 
+      <Modal show={isModalOpen} onClose={toggleModal}>
+        <TournamentForm newTournament={newTournament} onChange={handleChange} onSubmit={handleSubmit} />
+        <ExistingTournamentForm
+          allTournaments={tournaments}
+          existingTournamentId={existingTournamentId}
+          onChange={setExistingTournamentId}
         />
-
-        <h2>Добавить существующий турнир</h2>
-        <ExistingTournamentForm 
-          allTournaments={allTournaments} 
-          onChange={setExistingTournamentId} 
-          onSubmit={handleExistingTournamentSubmit} 
-        />
-
-        <h2>Добавить турнир с сайта МАК</h2>
-        <SiteTournamentForm 
-          siteTournamentId={siteTournamentId} 
-          onChange={(e) => setSiteTournamentId(e.target.value)} 
-          onSubmit={handleSiteTournamentSubmit} 
+        <SiteTournamentForm
+          siteTournamentId={siteTournamentId}
+          onChange={setSiteTournamentId}
         />
       </Modal>
 
-      <TournamentTable tournaments={tournaments} leagueId={filters.leagueId} />
+      <TournamentTable
+        tournaments={tournaments}
+        onSortChange={handleSortChange}
+        sortField={sort.field}
+      />
+
+      <div className="pagination">
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button key={index} onClick={() => handlePageChange(index)} disabled={index === currentPage}>
+            {index + 1}
+          </button>
+        ))}
+      </div>
     </div>
   );
-}
+};
 
 export default TournamentsPage;

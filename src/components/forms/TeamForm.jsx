@@ -2,7 +2,6 @@ import React from "react";
 
 import "./style.css"
 
-// Компонент TeamForm
 function TeamForm({ newTeam, leagues, onChange, onSubmit }) {
   return (
     <form onSubmit={onSubmit}>
