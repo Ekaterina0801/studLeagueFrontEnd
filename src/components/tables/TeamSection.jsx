@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { getLeagueById } from "../../api/apiLeagues";
 import { addTeamToTournament } from "../../api/apiTournaments";
 import { addNewTeam } from "../../api/apiTeams";
-const TeamsSection = ({ tournamentId, teamCompositions, leagueId, leaguesIds}) => {
+const TeamsSection = ({ tournamentId, teamCompositions, leagueId, leaguesIds, showButton}) => {
   const [leagues, setLeagues] = useState([]);
 
   useEffect(() => {
@@ -104,12 +104,13 @@ const TeamsSection = ({ tournamentId, teamCompositions, leagueId, leaguesIds}) =
       </table>
     </div>
   )}
-  <AddTeamForm
+  {showButton&&(<AddTeamForm
     leagues={leagues}
     onAddNewTeam={handleAddNewTeam}
     onAddExistingTeam={handleAddExistingTeam}
     onAddSiteTeam={handleAddSiteTeam}
-  />
+  />)}
+  
 </div>
 
   );

@@ -1,7 +1,5 @@
 import axios from 'axios';
 import { withAuth, getAuthHeaders, API_URL } from './apiHeaders';
-import axios from 'axios';
-import { API_URL, getAuthHeaders, withAuth } from './authHelpers';
 
 /**
  * Получить все системы подсчета результатов.

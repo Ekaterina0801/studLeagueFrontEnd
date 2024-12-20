@@ -118,7 +118,7 @@ const PlayerPage = () => {
               <tr key={team.id}>
                 <td>{index + 1}</td>
                 <td>{team?.name}</td>
-                <td>{team?.league.name}</td>
+                <td>{team?.league?.name}</td>
               </tr>
             ))}
           </tbody>
@@ -142,7 +142,7 @@ const PlayerPage = () => {
               <tr key={composition.tournament.id}>
                 <td>{index + 1}</td>
                 <td>
-                  <a href={`/leagues/${leagueId}/tournaments/${composition.tournament.id}`}>
+                  <a href={`/tournaments/${composition.tournament.id}/results`}>
                     {composition.tournament.name} 
                   </a>
                 </td>

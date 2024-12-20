@@ -1,6 +1,6 @@
-export const setTournaments = (tournaments) => ({
-    type: 'SET_TOURNAMENTS',
-    payload: tournaments,
+export const setTeams = (teams) => ({
+    type: 'SET_TEAMS',
+    payload: teams,
   });
   
   export const setLoading = (isLoading) => ({
@@ -18,9 +18,9 @@ export const setTournaments = (tournaments) => ({
     payload: totalPages,
   });
 
-  export const removeTournament = (tournamentId) => ({
-    type: "REMOVE_TOURNAMENT",
-    payload: tournamentId,
+  export const removeTeam = (teamId) => ({
+    type: "REMOVE_TEAM",
+    payload: teamId,
   });
   
   

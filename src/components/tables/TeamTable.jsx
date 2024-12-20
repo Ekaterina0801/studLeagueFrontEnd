@@ -1,7 +1,7 @@
 import React from "react";
 import "./style.css"
 
-function TeamTable({ teams, leagueId, onSortChange, sortField, sortDirection }) {
+function TeamTable({ teams, leagueId, onSortChange, sortField, sortDirection, onTeamRemove, showDeleteButton }) {
   if (teams.length === 0) {
     return <p>Команд пока нет</p>;
   }
@@ -17,15 +17,15 @@ function TeamTable({ teams, leagueId, onSortChange, sortField, sortDirection }) 
     <table className="table">
       <thead>
         <tr>
-          <th>
-            № 
-          </th>
+          <th>№</th>
           <th onClick={() => onSortChange("idSite")}>
             МАК ID {getSortIndicator("idSite")}
           </th>
           <th onClick={() => onSortChange("teamName")}>
             Название {getSortIndicator("teamName")}
           </th>
+          {showDeleteButton&&(<th>Удалить</th>)}
+          
         </tr>
       </thead>
       <tbody>
@@ -36,6 +36,16 @@ function TeamTable({ teams, leagueId, onSortChange, sortField, sortDirection }) 
             <td>
               <a href={`/leagues/${leagueId}/teams/${team.id}`}>{team.name}</a>
             </td>
+            {showDeleteButton&&(<td>
+              <span
+                className="remove-icon"
+                onClick={() => onTeamRemove(team.id)} 
+              >
+                🗑️
+              </span>
+              <span className="remove-tooltip">Удалить команду</span>
+            </td>)}
+            
           </tr>
         ))}
       </tbody>
@@ -44,5 +54,3 @@ function TeamTable({ teams, leagueId, onSortChange, sortField, sortDirection }) 
 }
 
 export default TeamTable;
-
-

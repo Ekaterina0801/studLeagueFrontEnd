@@ -20,7 +20,7 @@ const ResultsSection = ({ tableResult, showQuestions, toggleQuestions }) => {
   return (
     <div>
       <button onClick={toggleQuestions}>
-        Скрыть/Показать столбцы вопросов
+        {showQuestions ? "Скрыть столбцы вопросов" : "Показать столбцы вопросов"}
       </button>
       <div className="table-wrapper">
         <table className="table">

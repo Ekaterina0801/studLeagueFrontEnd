@@ -4,11 +4,16 @@ import { useState } from "react";
 export const useModal = () => {
     const [showModal, setShowModal] = useState(false);
     const [modalType, setModalType] = useState("");
-  
-    return {
-      showModal,
-      modalType,
-      setShowModal,
-      setModalType,
+
+    const toggleModal = () => {
+        setShowModal(prev => !prev);
     };
-  };
+
+    return {
+        showModal,
+        modalType,
+        setShowModal,   
+        setModalType,
+        toggleModal    
+    };
+};

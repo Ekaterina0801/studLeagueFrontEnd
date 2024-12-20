@@ -1,22 +1,18 @@
 import axios from 'axios';
 import { getAuthHeaders, API_URL } from './apiHeaders';
 import { withAuth } from './apiHeaders';
-// Добавить новый турнир
-export const addTournament = async (tournamentDto) => {
-    try {
-        const response = await axios.post(`${API_URL}/site/tournaments`, tournamentDto, getAuthHeaders());
-        return response.data;
-    } catch (error) {
-        console.error("Ошибка при добавлении турнира:", error);
-        throw error;
-    }
-};
 
 // Добавить новую команду
-export const addTeam = async (teamDto) => {
+export const addTeam = async (leagueId, teamId) => {
     try {
-        const response = await axios.post(`${API_URL}/site/teams`, teamDto, getAuthHeaders());
-        return response.data;
+        return withAuth(async (accessToken) => {
+            const response = await axios.post(
+                `${API_URL}/site-tournaments/leagues/${leagueId}/teams/${teamId}`,
+                null,  
+                { headers: getAuthHeaders(accessToken) }
+            );
+            return response.data;
+        });
     } catch (error) {
         console.error("Ошибка при добавлении команды:", error);
         throw error;

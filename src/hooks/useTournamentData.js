@@ -13,8 +13,10 @@ const useTournamentData = (tournamentId) => {
       const fetchData = async () => {
         setLoading(true);
         setError(null);
+       
         try {
           const tournamentData = await getTournamentById(tournamentId);
+          console.log(tournamentData);
           setTournament(tournamentData);
           setTeamCompositions(tournamentData.teamCompositions);
           setTableResult(tournamentData.results);

@@ -1,156 +1,171 @@
-import React, { useState, useEffect } from 'react';
-import Cookies from 'js-cookie'; 
-import { API_URL } from '../api/apiHeaders';
-import { withAuth } from '../api/apiHeaders';
-import { getAuthHeaders } from '../api/apiHeaders';
-import useManagerCheck from '../hooks/useManagerCheck';
+import React, { useState, useEffect } from "react";
+import { API_URL } from "../api/apiHeaders";
+import { withAuth } from "../api/apiHeaders";
+import { getAuthHeaders } from "../api/apiHeaders";
+import useManagerCheck from "../hooks/useManagerCheck";
+import { useLeagueId } from "../hooks/useLeagueId";
+import { useResultsData } from "../hooks/useResultsData";
+import { useAvailableSystems } from "../hooks/useAvailableSystems";
+import { useModal } from "../hooks/useModal";
+import ResultsTable from "../components/tables/Resultstable";
+import Modal from "../components/forms/Modal/Modal";
+import { useLeagueData } from "../hooks/useLeagueData";
+import { addNewLeague } from "../api/apiLeagues";
 const LeagueResults = () => {
-  const [leagueId, setLeagueId] = useState(null);
-  const [availableSystems, setAvailableSystems] = useState([]);
-  const [resultsData, setResultsData] = useState([]);
-  const [selectedSystem, setSelectedSystem] = useState('');
+    const leagueId = useLeagueId();
+    const availableSystems = useAvailableSystems();
+    const resultsData = useResultsData(leagueId);
+    const leagueData = useLeagueData(leagueId);
+    const [message, setMessage] = useState('');
+    const [selectedSystem, setSelectedSystem] = useState('');
+    const [excludedGames, setExcludedGames] = useState(0); 
 
-  useEffect(() => {
-    const leagueIdFromCookie = Cookies.get('leagueId');
-    if (leagueIdFromCookie) {
-      setLeagueId(leagueIdFromCookie);
-    } else {
-      console.error('League ID не найден в cookies.');
-    }
-  }, []);
-
-  const { isManager, errorManager } = useManagerCheck(leagueId); 
-  if (errorManager) {
-    return <p>Error loading manager status: {error.message}</p>;
-}
-
-  useEffect(() => {
-    if (leagueId) {
-      fetch(`${API_URL}/leagues/${leagueId}/results`)
-        .then(async (response) => {
-          const rawResponse = await response.text();
-          if (response.ok) {
-            try {
-              const jsonResponse = JSON.parse(rawResponse);
-              setResultsData(jsonResponse);
-              console.log('results',jsonResponse);
-              setSelectedSystem(jsonResponse.currentSystemId || '');
-            } catch (error) {
-              console.error("Ошибка парсинга JSON:", rawResponse, error);
-            }
-          } else {
-            console.error('Ошибка ответа сервера:', response.statusText);
-          }
-        })
-        .catch((error) => console.error("Ошибка загрузки данных:", error));
-    }
-  }, [leagueId]);
-
-  useEffect(() => {
-    fetch(`${API_URL}/system-results`)
-      .then(async (response) => {
-        const rawResponse = await response.text();
-        if (response.ok) {
-          try {
-            const jsonResponse = JSON.parse(rawResponse);
-            setAvailableSystems(jsonResponse);
-          } catch (error) {
-            console.error("Ошибка парсинга JSON:", rawResponse, error);
-          }
-        } else {
-          console.error('Ошибка ответа сервера:', response.statusText);
-        }
-      })
-      .catch((error) => console.error("Ошибка загрузки данных:", error));
-  }, []);
-
-
-  const handleSystemChange = (event) => {
-    setSelectedSystem(event.target.value);
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
-    withAuth(async (accessToken) => {
-      try {
-        const response = await fetch(`${API_URL}/leagues/${leagueId}/system-results?systemResultId=${selectedSystem}`, {
-          method: 'PUT',
-          headers: getAuthHeaders(accessToken),
-        });
-  
-        if (!response.ok) {
-          throw new Error('Ошибка при обновлении системы результатов');
-        }
-        const data = await response.text();
-        console.log(data);  // Можно обработать ответ
-      } catch (error) {
-        console.error('Ошибка:', error);
+    useEffect(() => {
+      if (leagueData) {
+        setSelectedSystem(leagueData.systemResultId);
+        setExcludedGames(leagueData.countExcludedGames);
       }
-    });
+    }, [leagueData]);
+    const { showModal, toggleModal } = useModal();
+    
+  
+    const { isManager, errorManager } = useManagerCheck(leagueId);
+    if (errorManager) {
+      return <p>Error loading manager status: {errorManager.message}</p>;
+    }
+    const handleCountGamesChange = (event) => {
+      setExcludedGames(event.target.value);
+    };
+
+    const handleGameExclusionSubmit = async (event) => {
+      event.preventDefault();
+      console.log(excludedGames)
+      withAuth(async (accessToken) => {
+        try {
+          const response = await fetch(
+            `${API_URL}/leagues/${leagueId}/excluded-games?countGames=${excludedGames}`,
+            {
+              method: "PUT",
+              headers: getAuthHeaders(accessToken),
+            }
+          );
+  
+          if (!response.ok) {
+            throw new Error("Ошибка при обновлении системы результатов");
+          }
+          setMessage('Система успешно изменена!');
+      setTimeout(() => {
+        window.location.reload();
+    }, 2000);
+        } catch (error) {
+          console.error("Ошибка:", error);
+        }
+      });
+    
+    };
+    
+  
+    const handleSystemChange = (event) => {
+      setSelectedSystem(event.target.value);
+    };
+  
+    const handleSubmit = async (event) => {
+      event.preventDefault();
+      setMessage('Система успешно изменена!');
+      setTimeout(() => {
+        window.location.reload();
+    }, 2000);
+      withAuth(async (accessToken) => {
+        try {
+          const response = await fetch(
+            `${API_URL}/leagues/${leagueId}/system-results?systemResultId=${selectedSystem}`,
+            {
+              method: "PUT",
+              headers: getAuthHeaders(accessToken),
+            }
+          );
+  
+          if (!response.ok) {
+            throw new Error("Ошибка при обновлении системы результатов");
+          }
+          setMessage('Система успешно изменена!');
+      setTimeout(() => {
+        window.location.reload();
+    }, 2000);
+        } catch (error) {
+          console.error("Ошибка:", error);
+        }
+      });
+    };
+  
+    if (!leagueId) {
+      return <p>Определение текущей лиги...</p>;
+    }
+  
+    if (!resultsData) {
+      return <p>Загрузка данных...</p>;
+    }
+  
+    const countGames =
+      resultsData.length > 0
+        ? Math.max(
+            ...resultsData.map(
+              (entry) => Object.keys(entry.resultsByTour || {}).length
+            )
+          )
+        : 0;
+  
+    return (
+      <div>
+        <h1>Результаты лиги</h1>
+        {message && <p className="success-message">{message}</p>}
+        {isManager && (
+          <button onClick={toggleModal}>Изменить систему результатов</button>
+        )}
+        {showModal && (
+         <Modal show={showModal} onClose={toggleModal}>
+         <form onSubmit={handleSubmit}>
+           <label htmlFor="systemResultId">Выберите систему результатов:</label>
+           <select
+             id="systemResultId"
+             value={selectedSystem}
+             onChange={handleSystemChange}
+           >
+             {availableSystems.map((system) => (
+               <option key={system.id} value={system.id}>
+                 {system.name}
+               </option>
+             ))}
+           </select>
+           <button type="submit">Изменить систему результатов</button>
+         </form>
+       
+         {/* Новая кнопка и форма для изменения количества игр */}
+         <form onSubmit={handleGameExclusionSubmit} style={{ marginTop: "20px" }}>
+           <label htmlFor="excludedGames">
+             Укажите количество игр, которые не включаются:
+           </label>
+           <input
+             type="number"
+             id="excludedGames"
+             min="0"
+             value={excludedGames}
+             onChange={handleCountGamesChange}
+           />
+           <button type="submit">Изменить количество игр</button>
+         </form>
+       </Modal>
+       
+        )}
+  
+        {resultsData && resultsData.length > 0 ? (
+          <ResultsTable resultsData={resultsData} countGames={countGames} />
+        ) : (
+          <p>Нет результатов для отображения</p>
+        )}
+      </div>
+    );
   };
   
-
-  if (!leagueId) {
-    return <p>Определение текущей лиги...</p>;
-  }
-
-  if (!resultsData) {
-    return <p>Загрузка данных...</p>;
-  }
-
-  const countGames = resultsData.length > 0 
-    ? Math.max(...resultsData.map((entry) => Object.keys(entry.resultsByTour || {}).length))
-    : 0;
-
-  return (
-    <div>
-      <h1>Результаты лиги</h1>
-
-      {/* Форма для выбора системы результатов */}
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="systemResultId">Выберите систему результатов:</label>
-        <select
-          id="systemResultId"
-          value={selectedSystem}
-          onChange={handleSystemChange}
-        >
-          {availableSystems.map((system) => (
-            <option key={system.id} value={system.id}>
-              {system.name}
-            </option>
-          ))}
-        </select>
-        <button type="submit">Изменить систему результатов</button>
-      </form>
-
-      {/* Таблица с результатами */}
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Команда</th>
-            {Array.from({ length: countGames }).map((_, index) => (
-              <th key={index}>Тур {index + 1}</th>
-            ))}
-            <th>Суммарные баллы</th>
-          </tr>
-        </thead>
-        <tbody>
-          {resultsData.map((entry) => (
-            <tr key={entry.teamId}>
-              <td>{entry.teamName}</td>
-              {Array.from({ length: countGames }).map((_, index) => (
-                <td key={index}>
-                  {entry.resultsByTour?.[index + 1] || 0}
-                </td>
-              ))}
-              <td>{entry.totalScore}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
-
-export default LeagueResults;
+  export default LeagueResults;
+  

@@ -89,3 +89,11 @@
     color: var(--white);
   }
   
+
+  .hidden {
+    display: none;
+  }
+  
+  .questionColumn {
+    display: table-cell;
+  }

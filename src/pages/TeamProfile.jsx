@@ -1,4 +1,4 @@
-import React, {useState } from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   addFlagToTeam,
@@ -17,8 +17,9 @@ import PlayerSearchForm from "../components/forms/PlayerSearchForm";
 import useTeamsList from "../hooks/useTeamsList";
 import useSuccessMessage from "../hooks/useSuccessMessage";
 import { useModal } from "../hooks/useModal";
+import useManagerCheck from "../hooks/useManagerCheck";
 const TeamPage = () => {
-    const { teamId, leagueId } = useParams();
+  const { teamId, leagueId } = useParams();
   const {
     team,
     teamResults,
@@ -32,7 +33,9 @@ const TeamPage = () => {
   } = useTeamData(teamId, leagueId);
   const teams = useTeamsList(leagueId);
   const { successMessage, showSuccessMessage } = useSuccessMessage();
-  const { showModal, modalType, setShowModal, setModalType } = useModal();  
+  const { showModal, modalType, setShowModal, setModalType } = useModal();
+  const { isManager, errorManager } = useManagerCheck(leagueId);
+
 
   const [playerForm, setPlayerForm] = useState({
     name: "",
@@ -53,6 +56,7 @@ const TeamPage = () => {
     comment: "",
   });
 
+  
   const handleTransferChange = (e) => {
     const { name, value } = e.target;
     setTransferForm((prevForm) => ({ ...prevForm, [name]: value }));
@@ -65,9 +69,20 @@ const TeamPage = () => {
 
   const handlePlayerSubmit = async (e) => {
     e.preventDefault();
+  
     try {
-      const updatedPlayerForm = { ...playerForm, teamIds: [teamId] };
+      const dateOfBirth = playerForm.dateOfBirth 
+        ? new Date(playerForm.dateOfBirth).toISOString().slice(0, 10) 
+        : null;
+  
+      const updatedPlayerForm = { 
+        ...playerForm, 
+        teamIds: [teamId], 
+        dateOfBirth 
+      };
+  
       await addNewPlayer(updatedPlayerForm);
+  
       showSuccessMessage("Новый игрок создан и успешно добавлен к команде");
       toggleModal();
       window.location.reload();
@@ -75,6 +90,7 @@ const TeamPage = () => {
       console.error("Ошибка добавления игрока:", err);
     }
   };
+  
 
   const handleFlagSubmit = async (e) => {
     e.preventDefault();
@@ -98,8 +114,11 @@ const TeamPage = () => {
       const newFlag = { name: newFlagName, leagueId, teamsIds: [teamId] };
       await addNewFlag(newFlag);
       const updatedTeam = await getTeamById(teamId);
-      setTeam(updatedTeam);
-      setFlags(updatedTeam.flags || []);
+       setTimeout(async () => {
+        const updatedTeam = await getTeamById(teamId);
+        setTeam(updatedTeam);
+        setFlags(updatedTeam.flags || []);
+    }, 2000);
       setNewFlagName("");
       showSuccessMessage("Новый флаг успешно создан");
       toggleModal();
@@ -107,9 +126,6 @@ const TeamPage = () => {
       console.error("Ошибка создания флага:", err);
     }
   };
-  
-
-  
 
   const handlePlayerSearchSubmit = async (playerId) => {
     try {
@@ -124,8 +140,6 @@ const TeamPage = () => {
     }
   };
 
-  
-
   const handleFlagRemove = async (flagId) => {
     try {
       await deleteFlagFromTeam(teamId, flagId);
@@ -133,7 +147,7 @@ const TeamPage = () => {
       setTeam(updatedTeam);
       setFlags(updatedTeam.flags || []);
       setSuccessMessage("Флаг успешно удален из команды");
-      setTimeout(() => setSuccessMessage(""), 3000); 
+      setTimeout(() => setSuccessMessage(""), 3000);
     } catch (err) {
       setError("Ошибка удаления флага");
     }
@@ -145,7 +159,7 @@ const TeamPage = () => {
       const updatedTeam = await getTeamById(teamId);
       setTeam(updatedTeam);
       setSuccessMessage("Игрок успешно удален из команды");
-      setTimeout(() => setSuccessMessage(""), 3000); 
+      setTimeout(() => setSuccessMessage(""), 3000);
     } catch (err) {
       setError("Ошибка удаления игрока");
     }
@@ -164,7 +178,6 @@ const TeamPage = () => {
     }
   };
 
-
   const toggleModal = (type = "") => {
     setModalType(type);
     setShowModal((prev) => !prev);
@@ -175,7 +188,7 @@ const TeamPage = () => {
 
   return (
     <div>
-      <h1>{team.teamName}</h1>
+      <h1>{team.name}</h1>
       {successMessage && (
         <div className="success-message">{successMessage}</div>
       )}
@@ -186,23 +199,27 @@ const TeamPage = () => {
           team.flags.map((flag) => (
             <div key={flag.id} className="flag">
               {flag.name}
+              {isManager && (
               <span
                 className="remove-icon"
                 onClick={() => handleFlagRemove(flag.id)}
               >
                 🗑
               </span>
+)}
             </div>
           ))
         ) : (
           <p>Пока нет флагов</p>
         )}
       </div>
+      {isManager && (
+  <>
+    <button onClick={() => toggleModal("flag")}>Добавить флаг</button>
+    <button onClick={() => toggleModal("player")}>Добавить нового игрока</button>
+  </>
+)}
 
-      <button onClick={() => toggleModal("flag")}>Добавить флаг</button>
-      <button onClick={() => toggleModal("player")}>
-        Добавить нового игрока
-      </button>
       <Modal show={showModal} onClose={() => toggleModal()}>
         {modalType === "flag" && (
           <div>
@@ -301,84 +318,82 @@ const TeamPage = () => {
           </div>
         )}
       </Modal>
-      
+
       <Modal
-  show={showModal && modalType === "transfer"}
-  onClose={() => toggleModal()}
->
-  <h3>Перевести игрока в другую команду</h3>
-
-  {/* Поиск новой команды */}
-<TransferSearchForm
-  onSubmit={(newTeamId) => {
-    setTransferForm((prevForm) => ({
-      ...prevForm,
-      newTeamId, // Обновляем только поле новой команды
-    }));
-  }}
-  onClose={() => toggleModal()}
-  selectedLeagueId={leagueId} 
-/>
-
-
-  <form onSubmit={handleTransferSubmit}>
-    <div>
-      <label htmlFor="oldTeamId">Текущая команда</label>
-      <select
-        id="oldTeamId"
-        name="oldTeamId"
-        value={transferForm.oldTeamId}
-        onChange={handleTransferChange}
-        required
+        show={showModal && modalType === "transfer"}
+        onClose={() => toggleModal()}
       >
-        <option value="">Выберите текущую команду</option>
-        {teams.map((team) => (
-          <option key={team.id} value={team.id}>
-            {team.name}
-          </option>
-        ))}
-      </select>
+        <h3>Перевести игрока в другую команду</h3>
 
-      <label htmlFor="newTeamId">Новая команда</label>
-      <input
-        type="text"
-        id="newTeamId"
-        name="newTeamId"
-        value={
-          teams.find((team) => team.id === transferForm.newTeamId)?.name || ""
-        } 
-        readOnly
-      />
+        <TransferSearchForm
+          onSubmit={(newTeamId) => {
+            setTransferForm((prevForm) => ({
+              ...prevForm,
+              newTeamId,
+            }));
+          }}
+          onClose={() => toggleModal()}
+          selectedLeagueId={leagueId}
+        />
 
-      <label htmlFor="transferDate">Дата трансфера</label>
-      <input
-        type="date"
-        id="transferDate"
-        name="transferDate"
-        value={transferForm.transferDate}
-        onChange={handleTransferChange}
-        required
-      />
+        <form onSubmit={handleTransferSubmit}>
+          <div>
+            <label htmlFor="oldTeamId">Текущая команда</label>
+            <select
+              id="oldTeamId"
+              name="oldTeamId"
+              value={transferForm.oldTeamId}
+              onChange={handleTransferChange}
+              required
+            >
+              <option value="">Выберите текущую команду</option>
+              {teams.map((team) => (
+                <option key={team.id} value={team.id}>
+                  {team.name}
+                </option>
+              ))}
+            </select>
 
-      <label htmlFor="comment">Комментарий</label>
-      <input
-        type="text"
-        id="comment"
-        name="comment"
-        value={transferForm.comment}
-        onChange={handleTransferChange}
-      />
+            <label htmlFor="newTeamId">Новая команда</label>
+            <input
+              type="text"
+              id="newTeamId"
+              name="newTeamId"
+              value={
+                teams.find((team) => team.id === transferForm.newTeamId)
+                  ?.name || ""
+              }
+              readOnly
+            />
 
-      <input
-        type="hidden"
-        name="playerId"
-        value={transferForm.playerId}
-      />
-    </div>
-    <button type="submit">Перевести</button>
-  </form>
-</Modal>
+            <label htmlFor="transferDate">Дата трансфера</label>
+            <input
+              type="date"
+              id="transferDate"
+              name="transferDate"
+              value={transferForm.transferDate}
+              onChange={handleTransferChange}
+              required
+            />
 
+            <label htmlFor="comment">Комментарий</label>
+            <input
+              type="text"
+              id="comment"
+              name="comment"
+              value={transferForm.comment}
+              onChange={handleTransferChange}
+            />
+
+            <input
+              type="hidden"
+              name="playerId"
+              value={transferForm.playerId}
+            />
+          </div>
+          <button type="submit">Перевести</button>
+        </form>
+      </Modal>
 
       <h2>Состав команды</h2>
       {team.players.length > 0 ? (
@@ -387,8 +402,8 @@ const TeamPage = () => {
             <tr>
               <th>№</th>
               <th>ФИО игрока</th>
-              <th>Удалить</th>
-              <th>Трансфер</th>
+              {isManager&&(<th>Удалить</th>)}
+              
             </tr>
           </thead>
           <tbody>
@@ -406,7 +421,8 @@ const TeamPage = () => {
                       player.patronymic}
                   </a>
                 </td>
-                <td>
+                {isManager && (<td>
+                  
                   <span
                     className="remove-icon"
                     onClick={() => handlePlayerRemove(player.id)}
@@ -414,26 +430,8 @@ const TeamPage = () => {
                     🗑️
                   </span>
                   <span className="remove-tooltip">Удалить из команды</span>
-                </td>
-                <td>
-                  <span
-                  
-                    className="transfer-icon"
-                    onClick={() => {
-                      setTransferForm((prevForm) => ({
-                        ...prevForm,
-                        playerId: player.id,
-                        oldTeamId: teamId,
-                      }));
-                      toggleModal("transfer");
-                    }}
-                  >
-                    ↔️
-                  </span>
-                  <span className="transfer-tooltip">
-                    Перевести в другую команду
-                  </span>
-                </td>
+                </td>)}
+                
               </tr>
             ))}
           </tbody>

@@ -1,8 +1,10 @@
 import { createStore, combineReducers } from 'redux';
 import tournamentsReducer from './reducers/tournamentsReducer';
+import teamsReducer from './reducers/teamsReducer';
 
 const rootReducer = combineReducers({
   tournaments: tournamentsReducer,
+  teams: teamsReducer
 });
 
 const store = createStore(

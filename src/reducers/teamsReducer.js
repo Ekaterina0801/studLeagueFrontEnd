@@ -1,16 +1,16 @@
 const initialState = {
-    tournaments: [],
+    teams: [],
     totalPages: 0,
     isLoading: false,
     error: null,
   };
   
-  const tournamentsReducer = (state = initialState, action) => {
+  const teamsReducer = (state = initialState, action) => {
     switch (action.type) {
-      case "SET_TOURNAMENTS":
+      case "SET_TEAMS":
         return {
           ...state,
-          tournaments: action.payload,
+          teams: action.payload,
         };
       case "SET_TOTAL_PAGES":
         return {
@@ -27,11 +27,11 @@ const initialState = {
           ...state,
           error: action.payload,
         };
-      case "REMOVE_TOURNAMENT":
+      case "REMOVE_TEAM":
         return {
           ...state,
-          tournaments: state.tournaments.filter(
-            (tournament) => tournament.id !== action.payload
+          teams: state.teams.filter(
+            (team) => team.id !== action.payload
           ),
         };
       default:
@@ -40,5 +40,5 @@ const initialState = {
   };
   
   
-  export default tournamentsReducer;
+  export default teamsReducer;
   

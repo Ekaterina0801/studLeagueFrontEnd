@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
 import { getTeams } from '../api/apiTeams';
-import axios from "axios"; 
+import { useDispatch, useSelector } from "react-redux";
+import {setLoading,setError, setTeams, setTotalPages} from "../actions/teamsAction"; 
 const useTeams = (filters, sort, currentPage) => {
-  const [teams, setTeams] = useState([]);
-  const [totalPages, setTotalPages] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+  const {teams, totalPages, isLoading, error } = useSelector((state) => state.teams);
 
   useEffect(() => {
     const fetchTeams = async () => {
-      setIsLoading(true);
-      setError(null); 
+      if (!filters.leagueId) {
+        return; 
+      }
+      dispatch(setLoading(true)); 
+      
       try {
        const { leagueId, name } = filters;
         const { field, direction } = sort;
@@ -24,22 +26,22 @@ const useTeams = (filters, sort, currentPage) => {
         
   
         if (teamsData && Array.isArray(teamsData.content)) {
-          setTeams(teamsData.content);
-          setTotalPages(teamsData.totalPages || 0);
+          dispatch(setTeams(teamsData.content));
+          dispatch(setTotalPages(teamsData.totalPages || 0));
         } else {
-          setTeams([]);
-          setTotalPages(0);
+          dispatch(setTeams([]));
+          dispatch(setTeams(0));
         }
       } catch (err) {
-        setError("Ошибка при загрузке команд: " + (err.message || "Произошла ошибка"));
+        dispatch(setError("Ошибка при загрузке команд: " + (err.message || "Произошла ошибка")));
         console.error(err);
       } finally {
-        setIsLoading(false);
+        dispatch(setLoading(false)); 
       }
     };
 
     fetchTeams();
-  }, [filters, sort, currentPage]); 
+  }, [dispatch, filters, sort, currentPage]); 
 
   return { teams, totalPages, isLoading, error };
 };

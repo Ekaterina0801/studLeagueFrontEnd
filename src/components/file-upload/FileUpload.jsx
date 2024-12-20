@@ -5,7 +5,7 @@ import { withAuth } from "../../api/apiHeaders";
 import { getAuthHeaders } from "../../api/apiHeaders";
 
 
-const FileUpload = ({ tournamentId, leagueId }) => {
+const FileUpload = ({ tournamentId, leagueId, type }) => {
   const [file, setFile] = useState(null);
 
   const handleFileChange = (e) => {
@@ -22,7 +22,7 @@ const FileUpload = ({ tournamentId, leagueId }) => {
     formData.append("file", file);
 
     try {
-      await uploadFile(tournamentId, leagueId, formData);
+      await uploadFile(tournamentId, leagueId, type, formData);
       alert("Файл успешно загружен!");
       window.location.reload();
     } catch (error) {
@@ -31,26 +31,28 @@ const FileUpload = ({ tournamentId, leagueId }) => {
     }
   };
 
-  const uploadFile = async (tournamentId, leagueId, formData) => {
+  const uploadFile = async (tournamentId, leagueId, type, formData) => {
     try {
-      await withAuth(async (accessToken) => {
-        console.log("Загрузка файла для турнира:", tournamentId, "в лиге:", leagueId);
-        
-        const response = await axios.post(
-          `${API_URL}/upload-results?tournamentId=${tournamentId}&leagueId=${leagueId}`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              ...getAuthHeaders(accessToken), 
-            },
-          }
-        );
-        alert(response.data); 
-      });
+        await withAuth(async (accessToken) => {
+            console.log("Загрузка файла для турнира:", tournamentId, "в лиге:", leagueId);
+
+            const url =
+                type === "results"
+                    ? `${API_URL}/upload-results?tournamentId=${tournamentId}&leagueId=${leagueId}`
+                    : `${API_URL}/upload-compositions?tournamentId=${tournamentId}&leagueId=${leagueId}`;
+
+            const response = await axios.post(url, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    ...getAuthHeaders(accessToken),
+                },
+            });
+
+            alert(response.data); 
+        });
     } catch (error) {
-      console.error("Ошибка загрузки файла: ", error);
-      alert("Загрузка файла не удалась");
+        console.error("Ошибка загрузки файла: ", error);
+        alert("Загрузка файла не удалась");
     }
   };
 

@@ -11,9 +11,8 @@ const useManagerCheck = (leagueId) => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        // Проверяем, что leagueId установлен, чтобы избежать лишних запросов
         if (!leagueId) {
-            setIsManager(null); // Сбрасываем статус менеджера
+            setIsManager(null); 
             return;
         }
 
@@ -21,16 +20,16 @@ const useManagerCheck = (leagueId) => {
             try {
                 const isUserManager = await checkIfManager(leagueId);
                 setIsManager(isUserManager);
-                setError(null); // Сбрасываем ошибки, если все прошло успешно
+                setError(null); 
             } catch (err) {
                 console.error("Error checking manager status:", err);
                 setError(err);
-                setIsManager(null); // Сбрасываем статус при ошибке
+                setIsManager(null); 
             }
         };
 
         fetchManagerStatus();
-    }, [leagueId]); // Хук запускается только при изменении leagueId
+    }, [leagueId]); 
 
     return { isManager, error };
 };

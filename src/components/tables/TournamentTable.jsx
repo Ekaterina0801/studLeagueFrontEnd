@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 
-function TournamentTable({ tournaments, leagueId, onSortChange, sortField, sortDirection }) {
-  const [sort, setSort] = useState({ field: "name", direction: "asc" });
+function TournamentTable({ tournaments, onSortChange, sortField, onTournamentRemove, showDeleteButton }) {
+
   const getSortIndicator = (field) => {
     if (sortField === field) {
-      return sortDirection === "asc" ? "▲" : "▼";
+      return "▲";
     }
     return "▲";
   };
@@ -17,9 +17,7 @@ function TournamentTable({ tournaments, leagueId, onSortChange, sortField, sortD
     <table className="table">
       <thead>
         <tr>
-          <th>
-            № 
-          </th>
+          <th>№</th>
           <th onClick={() => onSortChange("idSite")}>
             Id с сайта {getSortIndicator("idSite")}
           </th>
@@ -32,7 +30,7 @@ function TournamentTable({ tournaments, leagueId, onSortChange, sortField, sortD
           <th onClick={() => onSortChange("dateOfEnd")}>
             Дата завершения турнира {getSortIndicator("dateOfEnd")}
           </th>
-          <th>Результаты</th>
+          {showDeleteButton && ( <th>Удалить</th>)}
         </tr>
       </thead>
       <tbody>
@@ -40,10 +38,21 @@ function TournamentTable({ tournaments, leagueId, onSortChange, sortField, sortD
           <tr key={tournament.id}>
             <td>{index + 1}</td>
             <td><a href="#">{tournament.idSite}</a></td>
-            <td>{tournament.name}</td>
+            <td><a href={`/tournaments/${tournament.id}/results`}>{tournament.name}</a></td>
             <td>{tournament.dateStart}</td>
             <td>{tournament.dateEnd}</td>
-            <td><a href={`/tournaments/${tournament.id}/results`}>Результаты</a></td>
+            {showDeleteButton &&(
+              <td>
+              <span
+                className="remove-icon"
+                onClick={() => onTournamentRemove(tournament.id)}
+              >
+                🗑️
+              </span>
+              <span className="remove-tooltip">Удалить турнир</span>
+            </td>
+            )}
+            
           </tr>
         ))}
       </tbody>
@@ -52,4 +61,3 @@ function TournamentTable({ tournaments, leagueId, onSortChange, sortField, sortD
 }
 
 export default TournamentTable;
-
