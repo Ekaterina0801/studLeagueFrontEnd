@@ -1,4 +1,4 @@
-export const API_URL = 'http://localhost:8080/api';
+export const API_URL = 'http://185.178.45.196:8080/api';
 import axios from "axios";
 
 // Функция для получения заголовков с авторизацией
