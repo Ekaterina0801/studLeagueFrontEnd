@@ -10,8 +10,11 @@
     display: flex;
     align-items: center;
     width: 70%;
-    max-width: 100%; /* Убедимся, что контейнер не выходит за пределы */
+    max-width: 100%;
+    box-sizing: border-box; /* Гарантирует учет padding в расчетах */
+    overflow: hidden; /* Убедимся, что ничего не выходит за пределы */
 }
+
 
 .search-container input {
     flex: 1; /* Заставляем input занимать всё доступное пространство */
@@ -30,23 +33,23 @@
 
 .search-container .search-button {
     position: absolute;
-    right: 10px;
+    right: 5px; /* Убедитесь, что кнопка не выходит */
     top: 50%;
-    transform: translateY(-50%); /* Центрирование по вертикали */
+    transform: translateY(-50%);
     background: var(--purple);
     color: white;
     border: none;
     border-radius: 50%;
-    width: 30px;
-    height: 30px;
+    width: 28px; /* Уменьшите размер кнопки, если она слишком велика */
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.2s;
-    font-size: 1rem;
-    box-shadow: none; /* Убираем возможные артефакты */
+    font-size: 0.9rem; /* Подгоните шрифт под размер кнопки */
 }
+
 
 .search-container .search-button:hover {
     background-color: var(--purple-light);

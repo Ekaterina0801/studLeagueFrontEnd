@@ -37,24 +37,50 @@ const AuthForm = () => {
 
   const validateForm = () => {
     const newErrors = {};
+  
+    if (!formData.username) {
+      newErrors.username = "Логин обязателен";
+    } else if (formData.username.length < 3) {
+      newErrors.username = "Логин должен содержать не менее 3 символов";
+    }
+  
+    if (!formData.password) {
+      newErrors.password = "Пароль обязателен";
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Пароль должен содержать не менее 8 символов";
+    }
+  
     if (!isForgotPassword) {
-      if (!formData.username) newErrors.username = "Логин обязателен";
-      if (!formData.password) newErrors.password = "Пароль обязателен";
       if (!isLogin) {
-        if (!formData.confirm)
+        if (!formData.confirm) {
           newErrors.confirm = "Требуется подтверждение пароля";
-        if (formData.password !== formData.confirm)
+        } else if (formData.password !== formData.confirm) {
           newErrors.confirm = "Пароли не совпадают";
-        if (!formData.email) newErrors.email = "Email обязателен";
-        if (!formData.fullname) newErrors.fullname = "ФИО обязательно";
+        }
+
+        if (!formData.email) {
+          newErrors.email = "Email обязателен";
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+          newErrors.email = "Некорректный формат email";
+        }
+        if (!formData.fullname) {
+          newErrors.fullname = "ФИО обязательно";
+        } else if (formData.fullname.trim().length === 0) {
+          newErrors.fullname = "ФИО не может быть пустым";
+        }
       }
     } else {
-      if (!formData.email)
+      if (!formData.email) {
         newErrors.email = "Email обязателен для восстановления пароля";
+      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+        newErrors.email = "Некорректный формат email";
+      }
     }
+  
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();

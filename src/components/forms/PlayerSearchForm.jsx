@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import debounce from "lodash.debounce";
 
 
-const PlayerSearchForm = ({ onSubmit, onClose }) => {
+const PlayerSearchForm = ({ onSubmit, onClose}) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [queryToSubmit, setQueryToSubmit] = useState(null);
   const handleSubmit = (e) => {
@@ -15,27 +15,26 @@ const PlayerSearchForm = ({ onSubmit, onClose }) => {
     }
   };
 
-  // Дебаунс для оптимизации частых изменений строки поиска
   const handleSearchChange = useMemo(
     () =>
       debounce((value) => {
-        setQueryToSubmit(value.trim() || null); // Trim для удаления лишних пробелов
-      }, 500), // Устанавливаем задержку 500 мс
+        setQueryToSubmit(value.trim() || null); 
+      }, 500), 
     []
   );
 
-  // Очистка debounce при размонтировании
+
   useEffect(() => {
     return () => handleSearchChange.cancel();
   }, [handleSearchChange]);
 
-  // Парсинг имени, фамилии, отчества из строки поиска
+
   const filters = useMemo(() => {
     const parts = (queryToSubmit || "").split(" ").filter(Boolean);
     return {
-      name: parts[1] || "", // Имя (второе слово)
-      surname: parts[0] || "", // Фамилия (первое слово)
-      patronymic: parts[2] || "", // Отчество (третье слово, если есть)
+      name: parts[1] || "", 
+      surname: parts[0] || "", 
+      patronymic: parts[2] || "", 
       teamId: null,
       bornBefore: null,
       bornAfter: null,
@@ -59,8 +58,8 @@ const PlayerSearchForm = ({ onSubmit, onClose }) => {
         placeholder="Введите фамилию, имя и отчество игрока"
         value={searchQuery}
         onChange={(e) => {
-          setSearchQuery(e.target.value); // Обновляем UI
-          handleSearchChange(e.target.value); // Запускаем debounce
+          setSearchQuery(e.target.value); 
+          handleSearchChange(e.target.value); 
         }}
       />
               </form>

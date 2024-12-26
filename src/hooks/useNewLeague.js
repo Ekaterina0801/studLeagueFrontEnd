@@ -31,33 +31,11 @@ const useNewLeague = () => {
     setNewLeague((prevLeague) => ({ ...prevLeague, [name]: value }));
   };
 
-  const handleLeagueSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const leagueDTO = {
-        name: newLeague.name,
-        countExcludedGames: newLeague.countExcludedGames || 0, 
-        systemResultId: newLeague.systemResultId,
-      };
-
-      const result = await addNewLeague(leagueDTO);
-      console.log('New league added successfully:', result);
-      alert('Лига добавлена успешно!');
-      setTimeout(() => {
-        window.location.reload();
-    }, 2000);
-    } catch (error) {
-      console.error('Error adding new league:', error);
-      alert('Произошла ошибка при добавлении лиги.');
-    }
-  };
 
   return { 
     newLeague, 
     systemResults, 
-    handleChange, 
-    handleLeagueSubmit 
+    handleChange
   };
 };
 

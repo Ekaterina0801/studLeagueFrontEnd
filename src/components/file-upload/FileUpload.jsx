@@ -3,11 +3,13 @@ import axios from "axios";
 import { API_URL } from "../../api/apiHeaders";
 import { withAuth } from "../../api/apiHeaders";
 import { getAuthHeaders } from "../../api/apiHeaders";
-
+import Loader from "../spinner/Spinner";
+import SuccessMessage from "../successMessage/SuccessMessage";
 
 const FileUpload = ({ tournamentId, leagueId, type }) => {
   const [file, setFile] = useState(null);
-
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
   };
@@ -17,17 +19,20 @@ const FileUpload = ({ tournamentId, leagueId, type }) => {
       alert("Пожалуйста, выберите файл");
       return;
     }
-
+    setLoading(true);
     const formData = new FormData();
     formData.append("file", file);
 
     try {
       await uploadFile(tournamentId, leagueId, type, formData);
-      alert("Файл успешно загружен!");
+      setMessage("Файл успешно загружен!")
       window.location.reload();
     } catch (error) {
       console.error("Ошибка загрузки файла: ", error);
       alert("Загрузка файла не удалась");
+    }
+    finally{
+      setLoading(false);
     }
   };
 
@@ -58,6 +63,8 @@ const FileUpload = ({ tournamentId, leagueId, type }) => {
 
   return (
     <div>
+      {loading && <Loader />} 
+      {message && <SuccessMessage message={message} />}
       <input type="file" onChange={handleFileChange} />
       <button onClick={handleUpload}>Загрузить</button>
     </div>

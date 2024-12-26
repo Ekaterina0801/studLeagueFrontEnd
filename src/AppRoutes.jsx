@@ -6,8 +6,6 @@ import TeamPage from "./pages/TeamProfile";
 import LeagueResults from "./pages/LeagueResultsPage";
 import TournamentPage from "./pages/TournamentResults";
 import ProfilePage from "./pages/ProfilePage";
-import { Provider } from "react-redux";
-import store from "./store";
 import LeaguePage from "./pages/LeaguePage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ControversialsPage from "./pages/ControversialsPage";
@@ -26,6 +24,15 @@ const AppRoutes = ({
           />
         }
       />
+      <Route
+        path="/"
+        element={
+          <TeamsPage
+          />
+        }
+      />
+
+      
 
       {/* Tournament Page Route */}
       <Route

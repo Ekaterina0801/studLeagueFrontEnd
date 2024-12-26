@@ -9,12 +9,14 @@ import useNewLeague from "../hooks/useNewLeague";
 import { useModal } from "../hooks/useModal";
 import Modal from "../components/forms/Modal/Modal";
 import useManagerCheck from "../hooks/useManagerCheck";
+import Loader from "../components/spinner/Spinner";
+import { addNewLeague } from "../api/apiLeagues";
 const ProfilePage = () => {
   const navigate = useNavigate();
   const [leagues, setLeagues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { newLeague, systemResults, handleChange, handleLeagueSubmit } = useNewLeague(); 
+  const { newLeague, systemResults, handleChange} = useNewLeague(); 
   const { showModal, toggleModal } = useModal();
   const [message, setMessage] = useState('');
 
@@ -38,11 +40,32 @@ const ProfilePage = () => {
     logout();
     navigate("/login"); 
   };
+  const handleLeagueSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const leagueDTO = {
+        name: newLeague.name,
+        countExcludedGames: newLeague.countExcludedGames || 0, 
+        systemResultId: newLeague.systemResultId,
+      };
+
+      const result = await addNewLeague(leagueDTO);
+      setMessage('Лига добавлена успешно!');
+      window.location.reload();
+    } catch (error) {
+      console.error('Error adding new league:', error);
+      alert('Произошла ошибка при добавлении лиги.');
+    }
+    finally{
+      setLoading(false);
+    }
+  };
 
   const handleLeagueDelete = async (leagueId) => {
     const confirmDelete = window.confirm("Вы уверены, что хотите удалить эту лигу?");
     if (!confirmDelete) return;
-
+    setLoading(true);
     try {
       await deleteLeagueById(leagueId); 
       setLeagues((prevLeagues) => prevLeagues.filter((league) => league.id !== leagueId));
@@ -51,10 +74,13 @@ const ProfilePage = () => {
       console.error("Ошибка при удалении лиги:", err);
       alert("Не удалось удалить лигу. Попробуйте еще раз.");
     }
+    finally{
+      setLoading(false);
+    }
   };
 
   if (loading) {
-    return <p>Загрузка...</p>;
+    return <Loader />; 
   }
 
   if (error) {
@@ -64,7 +90,8 @@ const ProfilePage = () => {
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
       <h1>Профиль пользователя</h1>
-      {message && <p className="success-message">{message}</p>}
+      {loading && <Loader />} 
+      {message && <SuccessMessage message={message} />}
       <button onClick={handleLogout} style={logoutButtonStyle}>
         Выйти из профиля
       </button>

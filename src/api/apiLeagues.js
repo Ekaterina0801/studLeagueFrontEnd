@@ -63,17 +63,14 @@ export const deleteLeagueById = async (id) => {
 };
 // Изменить систему результатов в лиге
 export const changeSystemResult = async (leagueId, systemResultId) =>
-  withAuth(async (accessToken) => {
-    const response = await axios.put(
-      `${API_URL}/leagues/${leagueId}/system-results`,
-      null,
-      {
-        params: { systemResultId },
-        ...getAuthHeaders(accessToken),
-      }
-    );
-    return response.data;
-  });
+    withAuth(async (accessToken) => {
+        const response = await axios.put(
+          `${API_URL}/leagues/${leagueId}/system-results?systemResultId=${systemResultId}`,
+          null,
+          { headers: getAuthHeaders(accessToken) }
+        );
+        return response.data;
+      });
 
 // Добавить турнир в лигу
 export const addTournamentToLeague = async (tournamentId, leagueId) =>
@@ -194,3 +191,14 @@ export const getResultsByLeague = async (leagueId) => {
     throw error;
   }
 };
+
+
+export const updateExcludedGames = async (leagueId, excludedGames) => withAuth(async (accessToken) => {
+    const response = await axios.put(
+      `${API_URL}/leagues/${leagueId}/excluded-games?countGames=${excludedGames}`,
+      null,
+      { headers: getAuthHeaders(accessToken) }
+    );
+    return response.data;
+  });
+

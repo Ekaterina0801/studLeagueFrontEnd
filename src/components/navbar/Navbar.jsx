@@ -4,9 +4,7 @@ import React, { useState, useRef } from "react";
 import { NavLink } from "react-router-dom";
 import { FaChevronDown } from 'react-icons/fa';
 import useLeagues from '../../hooks/useLeagues';
-import { saveLeagueId } from '../../hooks/cookieUtils';
-import { getAuthHeaders } from '../../api/apiHeaders';
-import { useNavigate } from 'react-router-dom';
+import { saveLeagueId } from '../../hooks/cookieUtils';4
 import { useEffect } from 'react';
 
 
@@ -17,18 +15,18 @@ const Navbar = () => {
   const dropdownRef = useRef(null);
 
   useEffect(() => {
-    // Проверяем наличие accessToken для определения статуса авторизации
+
     const accessToken = localStorage.getItem('accessToken');
     setIsAuthenticated(!!accessToken);
   }, []);
 
   const handleLeagueChange = (leagueId) => {
-    setSelectedLeague(leagueId); // Update selected league
-    saveLeagueId(leagueId); // Save the league ID in cookies
-    setIsDropdownOpen(false); // Close the dropdown
+    setSelectedLeague(leagueId); 
+    saveLeagueId(leagueId); 
+    setIsDropdownOpen(false); 
 
-    // Reload the page
-    window.location.reload(); // Reloads the page
+
+    window.location.reload(); 
   };
 
   if (isLoading) {
@@ -39,12 +37,12 @@ const Navbar = () => {
     return <div>{error}</div>; 
   }
 
-  // Ensure the ID is matched correctly
+
   const selectedLeagueName = leagues.find(league => league.id === Number(selectedLeague))?.name || 'Выберите лигу';
 
   return (
     <div className="navbar">
-      <div className="logo">Рейтинг</div>
+      <div className="logo">Рейтинг "Имя розы"</div>
       <div className="nav-links">
         <NavLink to={`/teams`} className={({ isActive }) => (isActive ? "active-link" : "")}>Команды</NavLink>
         <NavLink to={`/tournaments`} className={({ isActive }) => (isActive ? "active-link" : "")}>Турниры</NavLink>

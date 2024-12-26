@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import { getLeagueById,addManagerToLeague, deleteManagerFromLeague } from '../api/apiLeagues';
 import Modal from '../components/forms/Modal/Modal';
 import UserSearchForm from '../components/forms/UserSearchForm';
+import Loader from '../components/spinner/Spinner';
+import SuccessMessage from '../components/successMessage/SuccessMessage';
 const LeaguePage = () => {
   const { leagueId } = useParams();
   const [league, setLeague] = useState({});
@@ -10,13 +12,13 @@ const LeaguePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [message, setMessage] = useState("");
   const [selectedManagerId, setSelectedManagerId] = useState("");
 
   useEffect(() => {
     const fetchLeagueData = async () => {
       try {
         const fetchedLeague = await getLeagueById(leagueId);
-        console.log(fetchLeagueData);
         setLeague(fetchedLeague);
         setManagers(fetchedLeague.managers || []);
       } catch (err) {
@@ -30,34 +32,46 @@ const LeaguePage = () => {
   }, [leagueId]);
 
   const handleManagerAdd = async (managerId) => {
+    setLoading(true);
     try {
       await addManagerToLeague(leagueId, managerId);
       const updatedLeague = await getLeagueById(leagueId);
       setLeague(updatedLeague);
       setManagers(updatedLeague.managers || []);
+      setMessage("Менеджер успешно добавлен!")
     } catch (err) {
       setError("Ошибка добавления менеджера");
+    }
+    finally{
+        setLoading(false);
     }
   }; 
 
   const handleManagerRemove = async (managerId) => {
+    setLoading(true);
     try {
       await deleteManagerFromLeague(leagueId, managerId);
       const updatedLeague = await getLeagueById(leagueId);
       setLeague(updatedLeague);
       setManagers(updatedLeague.managers || []);
+      setMessage("Менеджер успешно удален")
     } catch (err) {
       setError("Ошибка удаления менеджера");
+    }
+    finally{
+        setLoading(false);
     }
   };
 
   const toggleModal = () => setShowModal((prev) => !prev);
 
-  if (loading) return <p>Загрузка...</p>;
+  if (loading) return <Loader />; 
   if (error) return <p>{error}</p>;
 
   return (
     <div>
+        {loading && <Loader />} 
+        {message && <SuccessMessage message={message} />}
       <h1>Редактирование лиги: {league.name}</h1>
 
       <h2>Менеджеры</h2>

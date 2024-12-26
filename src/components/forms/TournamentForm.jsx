@@ -1,10 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 
-import Cookies from 'js-cookie';  // Импортируем библиотеку для работы с cookies
-import { useEffect } from "react";
 
 function TournamentForm({ newTournament, onChange, onSubmit }) {
-  console.log('leagueId from props:', newTournament.leagueId); // This should show the correct leagueId
+
 
   return (
     <form onSubmit={onSubmit}>
@@ -39,7 +37,7 @@ function TournamentForm({ newTournament, onChange, onSubmit }) {
       <input
         type="hidden"
         name="leagueId"
-        value={newTournament.leagueId} // Now you can directly use the leagueId from newTournament
+        value={newTournament.leagueId} 
       />
 
       <button type="submit">Добавить новый турнир</button>

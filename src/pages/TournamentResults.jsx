@@ -5,6 +5,7 @@ import ResultsSection from "../components/tables/ResultsSection";
 import FileUpload from "../components/file-upload/FileUpload";
 import useManagerCheck from "../hooks/useManagerCheck";
 import useTournamentData from "../hooks/useTournamentData";
+import Loader from "../components/spinner/Spinner";
 const TournamentPage = () => {
   const { tournamentId } = useParams();
   const {
@@ -19,13 +20,12 @@ const TournamentPage = () => {
   const { isManager, error: managerError } = useManagerCheck(leagueId);
 
   const [showQuestions, setShowQuestions] = useState(true);
-
   if (tournamentError) {
     return <p>{tournamentError?.message || tournamentError}</p>;
   }
 
   if (loading) {
-    return <p>Загрузка...</p>;
+    return <Loader />;
   }
 
   const toggleQuestions = () => {
@@ -56,17 +56,17 @@ const TournamentPage = () => {
       />
 
       <h2>Результаты</h2>
-      
+
       {isManager && (
         <>
-        <h3>Загрузить результаты турнира</h3>
-        <FileUpload
-          tournamentId={tournamentId}
-          leagueId={leagueId}
-          type="results"
-        />
-              </>)
-      }
+          <h3>Загрузить результаты турнира</h3>
+          <FileUpload
+            tournamentId={tournamentId}
+            leagueId={leagueId}
+            type="results"
+          />
+        </>
+      )}
       <a
         href={`/leagues/${leagueId}/tournaments/${tournamentId}/controversials`}
         className="name-ref"

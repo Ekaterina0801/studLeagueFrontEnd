@@ -42,7 +42,6 @@ export const addNewPlayer = async (playerDto) => {
     try {
         console.log('dto', playerDto);
         return withAuth(async (accessToken) => {
-            console.log(accessToken);
             const response = await axios.post(`${API_URL}/players`, playerDto, {
                 headers: getAuthHeaders(accessToken),
             });

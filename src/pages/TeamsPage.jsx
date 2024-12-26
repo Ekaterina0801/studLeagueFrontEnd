@@ -1,7 +1,6 @@
 import React, { useState,useEffect } from "react";
 import Modal from "../components/forms/Modal/Modal";
 import TeamForm from"../components/forms/TeamForm";
-import SiteTeamForm from "../components/forms/SiteTeamForm";
 import TeamTable from "../components/tables/TeamTable";
 import MainContent from "../components/main-section/MainSection";
 import useTeams from "../hooks/useTeams";
@@ -14,6 +13,9 @@ import { useLeagueId } from "../hooks/useLeagueId";
 import { useDispatch } from "react-redux";
 import { deleteTeamFromLeague } from "../api/apiLeagues";
 import { removeTeam } from "../actions/teamsAction";
+import Loader from "../components/spinner/Spinner";
+import SuccessMessage from "../components/successMessage/SuccessMessage";
+
 const TeamsPage = ({ leagues = [] }) => {
   const [filters, setFilters] = useState({ leagueId: '' });
   const [sort, setSort] = useState({ field: 'teamName', direction: 'asc' });
@@ -22,6 +24,7 @@ const TeamsPage = ({ leagues = [] }) => {
   const { searchInput, handleSearch } = useSearch(); 
   const { newTeam, handleChange, handleTeamSubmit, creation_message } = useNewTeam(); 
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const leagueId = useLeagueId(); 
   useEffect(() => {
@@ -48,34 +51,10 @@ const TeamsPage = ({ leagues = [] }) => {
     }
   };
 
-  /* const handleSiteTeamSubmit = async (e) => {
-    e.preventDefault();
-  
-    if (!siteTeamId) {
-      alert("Введите ID команды с сайта.");
-      return;
-    }
-  
-    try {
-      const addedTeam = await addTeam(leagueId, siteTeamId);
-      //dispatch(addTeamToStore(addedTeam));
-  
-      setSiteTeamId("");
-  
-      toggleModal();
-  
-      alert("Команда успешно добавлена!");
-    } catch (error) {
-      console.error("Ошибка при добавлении команды с сайта:", error);
-      alert("Не удалось добавить команду. Попробуйте позже.");
-    }
-  }; */
-  
-
   const handleTeamRemove = async (teamId) => {
     const confirmed = window.confirm("Вы уверены, что хотите удалить эту команду?");
     if (!confirmed) return;
-
+    setLoading(true);
     try {
       await deleteTeamFromLeague(leagueId, teamId);
       dispatch(removeTeam(teamId)); 
@@ -84,6 +63,9 @@ const TeamsPage = ({ leagues = [] }) => {
       console.error("Ошибка при удалении команды:", error);
       alert("Не удалось удалить команду. Попробуйте позже");
     }
+    finally{
+      setLoading(false);
+    }
   };
 
   if (!filters.leagueId) {
@@ -91,7 +73,7 @@ const TeamsPage = ({ leagues = [] }) => {
   }
 
   if (isLoading) {
-    return <div>Загрузка команд...</div>;
+    return <Loader />; 
   }
 
   if (error) {
@@ -100,8 +82,9 @@ const TeamsPage = ({ leagues = [] }) => {
 
   return (
     <MainContent>
+       {loading && <Loader />} 
+       {message && <SuccessMessage message={message} />}
       <h2>Команды</h2>
-      {message && <p className="success-message">{message}</p>}
       <SearchBar onSearch={handleSearch} />
       {isManager && (
         <button onClick={toggleModal}>Добавить новую команду</button>
