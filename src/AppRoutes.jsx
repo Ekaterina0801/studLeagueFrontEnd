@@ -11,28 +11,27 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ControversialsPage from "./pages/ControversialsPage";
 import PlayerPage from "./pages/PlayerPage";
 import TeamsPage from "./pages/TeamsPage";
+import ProtectedRoute from "../ProtectedRoute";
+import { useEffect,useState } from "react";
 
-const AppRoutes = ({
-}) => {
+const AppRoutes = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  useEffect(() => {
+
+    const accessToken = localStorage.getItem('accessToken');
+    setIsAuthenticated(!!accessToken);
+  }, []);
   return (
     <Routes>
       {/* Controversial Page Route */}
       <Route
         path="/leagues/:leagueId/tournaments/:tournamentId/controversials"
-        element={
-          <ControversialsPage
-          />
-        }
+        element={<ControversialsPage />}
       />
       <Route
         path="/"
-        element={
-          <TeamsPage
-          />
-        }
+        element={<TeamsPage />}
       />
-
-      
 
       {/* Tournament Page Route */}
       <Route
@@ -57,28 +56,22 @@ const AppRoutes = ({
       <Route path="/sign-up" element={<AuthForm />} />
 
       {/* Teams Page Route */}
-      <Route
-        path="/teams"
-        element={
-          <TeamsPage
-          />
-        }
-      />
+      <Route path="/teams" element={<TeamsPage />} />
 
       {/* Profile Page Route */}
       <Route path="/profile" element={<ProfilePage />} />
 
-      {/* League Page Route */}
-      <Route path="/leagues/:leagueId" element={<LeaguePage />} />
-
-      {/* Tournaments Page Route */}
       <Route
-        path="/tournaments"
+        path="/leagues/:leagueId"
         element={
-          <TournamentsPage
-          />
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+           <LeaguePage />
+          </ProtectedRoute>
         }
       />
+      
+      {/* Tournaments Page Route */}
+      <Route path="/tournaments" element={<TournamentsPage />} />
 
       {/* Reset Password Route */}
       <Route path="/reset-password" element={<ResetPasswordPage />} />

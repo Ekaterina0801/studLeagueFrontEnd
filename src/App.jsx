@@ -5,6 +5,7 @@ import { BrowserRouter as Router} from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./store";
 import AppRoutes from "./AppRoutes";
+import MobileNavigation from "./components/navbar/MobileNavbar";
 function App() {
   
   return (
@@ -12,6 +13,7 @@ function App() {
       <Router>
         <Header />
         <Navbar />
+        <MobileNavigation/>
         <AppRoutes
         />
       </Router>

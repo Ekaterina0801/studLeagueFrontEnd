@@ -20,7 +20,7 @@ export const getLeaguesByUser = async () => {
     console.log("response", response);
     return response.data;
   });
-};
+};   
 
 // Получить лигу по ID
 export const getLeagueById = async (id) =>

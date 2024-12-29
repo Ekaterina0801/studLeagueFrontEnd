@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./style.css";
 import axios from "axios";
 import { API_URL } from "../../api/apiHeaders";
-
+import { useDispatch } from "react-redux";
 const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
@@ -16,6 +16,7 @@ const AuthForm = () => {
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
@@ -33,36 +34,40 @@ const AuthForm = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    console.log(`${name}: ${value}`); // Логируем изменения
   };
 
   const validateForm = () => {
     const newErrors = {};
   
-    if (!formData.username) {
-      newErrors.username = "Логин обязателен";
-    } else if (formData.username.length < 3) {
-      newErrors.username = "Логин должен содержать не менее 3 символов";
-    }
-  
-    if (!formData.password) {
-      newErrors.password = "Пароль обязателен";
-    } else if (formData.password.length < 8) {
-      newErrors.password = "Пароль должен содержать не менее 8 символов";
-    }
-  
+    // Проверяем логин и пароль только если не режим восстановления пароля
     if (!isForgotPassword) {
+      if (!formData.username) {
+        newErrors.username = "Логин обязателен";
+      } else if (formData.username.length < 3) {
+        newErrors.username = "Логин должен содержать не менее 3 символов";
+      }
+  
+      if (!formData.password) {
+        newErrors.password = "Пароль обязателен";
+      } else if (formData.password.length < 8) {
+        newErrors.password = "Пароль должен содержать не менее 8 символов";
+      }
+  
       if (!isLogin) {
+        // Дополнительные проверки для регистрации
         if (!formData.confirm) {
           newErrors.confirm = "Требуется подтверждение пароля";
         } else if (formData.password !== formData.confirm) {
           newErrors.confirm = "Пароли не совпадают";
         }
-
+  
         if (!formData.email) {
           newErrors.email = "Email обязателен";
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
           newErrors.email = "Некорректный формат email";
         }
+  
         if (!formData.fullname) {
           newErrors.fullname = "ФИО обязательно";
         } else if (formData.fullname.trim().length === 0) {
@@ -70,38 +75,53 @@ const AuthForm = () => {
         }
       }
     } else {
+      // Валидация для восстановления пароля
+      console.log('check');
       if (!formData.email) {
         newErrors.email = "Email обязателен для восстановления пароля";
       } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
         newErrors.email = "Некорректный формат email";
       }
+      console.log("Ошибки валидации:", newErrors); // Логируем ошибки валидации
     }
   
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
   
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Форма отправлена"); // Логируем факт вызова handleSubmit
     if (validateForm()) {
       setLoading(true);
       setMessage("");
-
+      console.log("Форма валидна"); // Проверяем, проходит ли валидация
       try {
         let response;
-
+  
         if (isForgotPassword) {
-          // Sending password reset request
-          console.log(formData.email); 
+          console.log('frofrot');
+          if (!formData.email) {
+            setErrors({ email: "Введите ваш email" });
+            setLoading(false);
+            return;
+          }
+          console.log('fafafafa');
           response = await axios.post(
-            `${API_URL}/auth/request-password-reset?email=${encodeURIComponent(
-              formData.email
-            )}`
+            `${API_URL}/auth/request-password-reset`,
+            null,
+            {
+              params: {
+                email: formData.email,
+              },
+            }
           );
-
+          
+          console.log(response);
           setMessage(
-            response.data ||
+            response.data.message ||
               "Инструкция по восстановлению пароля отправлена на вашу почту."
           );
         } else if (isLogin) {
@@ -110,13 +130,14 @@ const AuthForm = () => {
             username: formData.username,
             password: formData.password,
           });
-
+  
           setMessage("Успешный вход!");
           const { accessToken, refreshToken, refreshTokenExpiresAt } =
             response.data;
           localStorage.setItem("accessToken", accessToken);
           localStorage.setItem("refreshToken", refreshToken);
           localStorage.setItem("expiresAt", refreshTokenExpiresAt);
+          
           window.location.href = "/teams";
         } else {
           // Registration
@@ -141,6 +162,7 @@ const AuthForm = () => {
       }
     }
   };
+  
 
   return (
     <div className="auth-form-container">

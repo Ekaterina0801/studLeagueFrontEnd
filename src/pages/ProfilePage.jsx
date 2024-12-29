@@ -38,7 +38,7 @@ const ProfilePage = () => {
 
   const handleLogout = () => {
     logout();
-    navigate("/login"); 
+    navigate("/sign-in"); 
   };
   const handleLeagueSubmit = async (e) => {
     e.preventDefault();

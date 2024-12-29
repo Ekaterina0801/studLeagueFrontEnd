@@ -5,6 +5,7 @@ import Modal from '../components/forms/Modal/Modal';
 import UserSearchForm from '../components/forms/UserSearchForm';
 import Loader from '../components/spinner/Spinner';
 import SuccessMessage from '../components/successMessage/SuccessMessage';
+import useManagerCheck from '../hooks/useManagerCheck';
 const LeaguePage = () => {
   const { leagueId } = useParams();
   const [league, setLeague] = useState({});
@@ -14,6 +15,7 @@ const LeaguePage = () => {
   const [showModal, setShowModal] = useState(false);
   const [message, setMessage] = useState("");
   const [selectedManagerId, setSelectedManagerId] = useState("");
+  const isManager = useManagerCheck(league);
 
   useEffect(() => {
     const fetchLeagueData = async () => {
@@ -38,14 +40,13 @@ const LeaguePage = () => {
       const updatedLeague = await getLeagueById(leagueId);
       setLeague(updatedLeague);
       setManagers(updatedLeague.managers || []);
-      setMessage("Менеджер успешно добавлен!")
+      setMessage("Менеджер успешно добавлен!");
     } catch (err) {
       setError("Ошибка добавления менеджера");
+    } finally {
+      setLoading(false);
     }
-    finally{
-        setLoading(false);
-    }
-  }; 
+  };
 
   const handleManagerRemove = async (managerId) => {
     setLoading(true);
@@ -54,24 +55,32 @@ const LeaguePage = () => {
       const updatedLeague = await getLeagueById(leagueId);
       setLeague(updatedLeague);
       setManagers(updatedLeague.managers || []);
-      setMessage("Менеджер успешно удален")
+      setMessage("Менеджер успешно удален");
     } catch (err) {
       setError("Ошибка удаления менеджера");
-    }
-    finally{
-        setLoading(false);
+    } finally {
+      setLoading(false);
     }
   };
 
   const toggleModal = () => setShowModal((prev) => !prev);
 
-  if (loading) return <Loader />; 
+  if (loading) return <Loader />;
   if (error) return <p>{error}</p>;
+
+  if (!isManager) {
+    return (
+      <div className="no-access">
+        <h2>У вас нет прав просмотра</h2>
+        <p>Вы не являетесь менеджером данной лиги.</p>
+      </div>
+    );
+  }
 
   return (
     <div>
-        {loading && <Loader />} 
-        {message && <SuccessMessage message={message} />}
+      {loading && <Loader />}
+      {message && <SuccessMessage message={message} />}
       <h1>Редактирование лиги: {league.name}</h1>
 
       <h2>Менеджеры</h2>
@@ -114,13 +123,11 @@ const LeaguePage = () => {
 
       <Modal show={showModal} onClose={toggleModal}>
         <h2>Добавление менеджера</h2>
-        <UserSearchForm
-          onSubmit={handleManagerAdd}
-          onClose={toggleModal}
-        />
+        <UserSearchForm onSubmit={handleManagerAdd} onClose={toggleModal} />
       </Modal>
     </div>
   );
 };
 
 export default LeaguePage;
+

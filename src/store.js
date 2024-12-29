@@ -1,10 +1,11 @@
 import { createStore, combineReducers } from 'redux';
 import tournamentsReducer from './reducers/tournamentsReducer';
 import teamsReducer from './reducers/teamsReducer';
-
+import authReducer from "./slices/authSlice"
 const rootReducer = combineReducers({
   tournaments: tournamentsReducer,
-  teams: teamsReducer
+  teams: teamsReducer,
+  auth: authReducer,
 });
 
 const store = createStore(

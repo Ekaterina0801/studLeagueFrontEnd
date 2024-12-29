@@ -5,7 +5,6 @@ import ResetPasswordForm from '../components/forms/ResetPasswordForm';
 const ResetPasswordPage = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token'); 
-
   if (!token) {
     return <p>Недействительный или отсутствующий токен.</p>;
   }
