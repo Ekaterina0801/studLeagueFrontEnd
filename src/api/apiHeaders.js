@@ -1,6 +1,7 @@
-export const API_URL = 'http://localhost:8080/api';
 import axios from "axios";
 
+export const API_URL = import.meta.env.VITE_BACKEND_URL+'/api';
+console.log(API_URL);
 // Функция для получения заголовков с авторизацией
 export const getAuthHeaders = (accessToken) => {
     const refreshToken = localStorage.getItem('refreshToken');
