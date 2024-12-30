@@ -91,9 +91,9 @@ const TeamsSection = ({
               </tr>
             </thead>
             <tbody>
-              {teamCompositions.map((teamComposition) => (
+              {teamCompositions.map((teamComposition, index) => (
                 <tr key={teamComposition.parentTeam.id}>
-                  <td>{teamComposition.parentTeam.id}</td>
+                  <td>{index+1}</td>
                   <td>
                     <a
                       href={`/leagues/${leagueId}/teams/${teamComposition.parentTeam.id}`}

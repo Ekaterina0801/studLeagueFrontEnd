@@ -15,7 +15,7 @@ const LeaguePage = () => {
   const [showModal, setShowModal] = useState(false);
   const [message, setMessage] = useState("");
   const [selectedManagerId, setSelectedManagerId] = useState("");
-  const isManager = useManagerCheck(league);
+  const isManager = true===useManagerCheck(leagueId);
 
   useEffect(() => {
     const fetchLeagueData = async () => {
@@ -67,7 +67,7 @@ const LeaguePage = () => {
 
   if (loading) return <Loader />;
   if (error) return <p>{error}</p>;
-
+  console.log('isM',isManager);
   if (!isManager) {
     return (
       <div className="no-access">

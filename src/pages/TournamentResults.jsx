@@ -69,7 +69,7 @@ const TournamentPage = () => {
       )}
       <a
         href={`/leagues/${leagueId}/tournaments/${tournamentId}/controversials`}
-        className="name-ref"
+        className="button-link"
       >
         Перейти к спорным
       </a>

@@ -189,3 +189,20 @@ button:hover {
     opacity: 0;
   }
 }
+
+
+.button-link {
+  display: inline-block; 
+  padding: 10px 15px;    
+  background-color: var(--purple); 
+  color: white;          
+  text-decoration: none;
+  transition: background-color 0.3s; 
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.button-link:hover {
+  background-color: var(--purple-light);
+}

@@ -11,16 +11,9 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ControversialsPage from "./pages/ControversialsPage";
 import PlayerPage from "./pages/PlayerPage";
 import TeamsPage from "./pages/TeamsPage";
-import ProtectedRoute from "../ProtectedRoute";
-import { useEffect,useState } from "react";
 
 const AppRoutes = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  useEffect(() => {
-
-    const accessToken = localStorage.getItem('accessToken');
-    setIsAuthenticated(!!accessToken);
-  }, []);
+  
   return (
     <Routes>
       {/* Controversial Page Route */}
@@ -64,9 +57,7 @@ const AppRoutes = () => {
       <Route
         path="/leagues/:leagueId"
         element={
-          <ProtectedRoute isAuthenticated={isAuthenticated}>
            <LeaguePage />
-          </ProtectedRoute>
         }
       />
       

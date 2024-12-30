@@ -1,22 +1,24 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getPlayerById} from "../api/apiPlayers"; 
-import useTeams from '../hooks/useTeams';
-import Cookies from "js-cookie"; 
-import { getTournamentById } from '../api/apiTournaments';
-import { getTeamById } from '../api/apiTeams';
-import Modal from '../components/forms/Modal/Modal';
-import { addNewTransfer } from '../api/apiTransfers';
-import moment from 'moment';
+import { getPlayerById } from "../api/apiPlayers";
+import useTeams from "../hooks/useTeams";
+import Modal from "../components/forms/Modal/Modal";
+import { addNewTransfer } from "../api/apiTransfers";
+import moment from "moment";
+import { useLeagueId } from "../hooks/useLeagueId";
+import useManagerCheck from "../hooks/useManagerCheck";
 const PlayerPage = () => {
+  const currentLeagueId = useLeagueId();
+  console.log('after call', currentLeagueId);
   const { playerId, leagueId } = useParams();
   const [player, setPlayer] = useState(null);
   const [playerResults, setPlayerResults] = useState([]);
   const [transfers, setTransfers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showModal, setShowModal] = useState(false); 
-  const [modalType, setModalType] = useState(""); 
+  const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] = useState("");
+  const { isManager, errorManager } = useManagerCheck(leagueId);
   const [transferForm, setTransferForm] = useState({
     oldTeamId: "",
     newTeamId: "",
@@ -28,8 +30,8 @@ const PlayerPage = () => {
     const fetchPlayerData = async () => {
       try {
         setLoading(true);
-        const playerData = await getPlayerById(playerId); 
-        console.log('player',playerData);
+        const playerData = await getPlayerById(playerId);
+        console.log("player", playerData);
         setPlayer(playerData);
         setTransfers(playerData.transfers || []);
         setLoading(false);
@@ -46,9 +48,9 @@ const PlayerPage = () => {
   const [sort, setSort] = useState({ field: "teamName", direction: "asc" });
 
   useEffect(() => {
-    const leagueIdFromCookie = Cookies.get("leagueId");
-    if (leagueIdFromCookie) {
-      setFilters({ leagueId: leagueIdFromCookie }); 
+    console.log('ll',leagueId);
+    if (leagueId) {
+      setFilters({ leagueId: leagueId });
     }
   }, []);
 
@@ -59,29 +61,33 @@ const PlayerPage = () => {
     setTransferForm((prevForm) => ({ ...prevForm, [name]: value }));
   };
 
-
   const handleTransferSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!transferForm.oldTeamId || !transferForm.newTeamId || !transferForm.transferDate) {
+
+    if (
+      !transferForm.oldTeamId ||
+      !transferForm.newTeamId ||
+      !transferForm.transferDate
+    ) {
       alert("Пожалуйста, заполните все обязательные поля.");
       return;
     }
-  
+
     try {
-      const formattedTransferDate = moment(transferForm.transferDate).format("YYYY-MM-DD");
-  
+      const formattedTransferDate = moment(transferForm.transferDate).format(
+        "YYYY-MM-DD"
+      );
+
       const transferData = {
         ...transferForm,
         playerId: playerId,
         transferDate: formattedTransferDate,
       };
-  
+
       const result = await addNewTransfer(transferData);
-      console.log("Трансфер игрока успешен:", result);
-  
       setTransfers((prevTransfers) => [...prevTransfers, result]);
-  
+      const updatedPlayerData = await getPlayerById(playerId);
+      setPlayer(updatedPlayerData);
       toggleModal();
       alert("Трансфер выполнен успешно!");
     } catch (err) {
@@ -89,8 +95,7 @@ const PlayerPage = () => {
       alert("Не удалось выполнить трансфер.");
     }
   };
-  
-  
+
   const toggleModal = (type = "") => {
     setModalType(type);
     setShowModal((prev) => !prev);
@@ -101,7 +106,9 @@ const PlayerPage = () => {
 
   return (
     <div>
-      <h1>{player.surname} {player.name} {player.patronymic}</h1>
+      <h1>
+        {player.surname} {player.name} {player.patronymic}
+      </h1>
 
       <h2>Команды игрока</h2>
       {player.teams.length > 0 ? (
@@ -143,13 +150,15 @@ const PlayerPage = () => {
                 <td>{index + 1}</td>
                 <td>
                   <a href={`/tournaments/${composition.tournament.id}/results`}>
-                    {composition.tournament.name} 
+                    {composition.tournament.name}
                   </a>
                 </td>
                 <td>{composition.tournament.dateEnd}</td>
                 <td>
-                  <a href={`/leagues/${leagueId}/teams/${composition.parentTeam.id}`}>
-                    {composition.parentTeam.name} 
+                  <a
+                    href={`/leagues/${leagueId}/teams/${composition.parentTeam.id}`}
+                  >
+                    {composition.parentTeam.name}
                   </a>
                 </td>
               </tr>
@@ -188,7 +197,11 @@ const PlayerPage = () => {
         <p>Трансферов пока нет</p>
       )}
 
-      <button onClick={() => toggleModal("transfer")}>Сделать трансфер</button>
+      {isManager && (
+        <button onClick={() => toggleModal("transfer")}>
+          Сделать трансфер
+        </button>
+      )}
 
       <Modal show={showModal} onClose={() => toggleModal()}>
         {modalType === "transfer" && (
@@ -205,11 +218,13 @@ const PlayerPage = () => {
                   required
                 >
                   <option value="">Выберите команду</option>
-                  {player.teams.map((team) => (
-                    <option key={team.id} value={team.id}>
-                      {team.name}
-                    </option>
-                  ))}
+                  {player.teams
+                    .filter((team) => team.league.id.toString() === leagueId.toString()) 
+                    .map((team) => (
+                      <option key={team.id} value={team.id}>
+                        {team.name}
+                      </option>
+                    ))}
                 </select>
 
                 <h2>Новые команды</h2>

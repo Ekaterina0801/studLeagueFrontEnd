@@ -11,20 +11,20 @@
     align-items: center;
     width: 70%;
     max-width: 100%;
-    box-sizing: border-box; /* Гарантирует учет padding в расчетах */
-    overflow: hidden; /* Убедимся, что ничего не выходит за пределы */
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 
 .search-container input {
-    flex: 1; /* Заставляем input занимать всё доступное пространство */
-    padding: 10px 45px 10px 15px; /* Увеличиваем padding под кнопку */
+    flex: 1; 
+    padding: 10px 45px 10px 15px;
     border: 1px solid var(--purple-light);
     border-radius: 20px;
     font-size: 1rem;
     outline: none;
     transition: border-color 0.3s;
-    box-sizing: border-box; /* Убедимся, что padding учитывается */
+    box-sizing: border-box; 
 }
 
 .search-container input:focus {
@@ -33,27 +33,26 @@
 
 .search-container .search-button {
     position: absolute;
-    right: 5px; /* Убедитесь, что кнопка не выходит */
+    right: 5px; 
     top: 50%;
     transform: translateY(-50%);
     background: var(--purple);
     color: white;
     border: none;
     border-radius: 50%;
-    width: 28px; /* Уменьшите размер кнопки, если она слишком велика */
+    width: 28px; 
     height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.2s;
-    font-size: 0.9rem; /* Подгоните шрифт под размер кнопки */
+    font-size: 0.9rem; 
 }
 
 
 .search-container .search-button:hover {
     background-color: var(--purple-light);
-    transform: scale(1.1);
 }
 
 @media (max-width: 768px) {

@@ -14,7 +14,7 @@ const ResultsSection = ({ tableResult, showQuestions, toggleQuestions }) => {
   });
 
   if (processedResults.length === 0) {
-    return <p>Результаты таблицы отсутствуют.</p>;
+    return <p>Результаты отсутствуют</p>;
   }
 
   return (
