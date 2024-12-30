@@ -11,6 +11,7 @@ import Modal from "../components/forms/Modal/Modal";
 import useManagerCheck from "../hooks/useManagerCheck";
 import Loader from "../components/spinner/Spinner";
 import { addNewLeague } from "../api/apiLeagues";
+import SuccessMessage from "../components/successMessage/SuccessMessage";
 const ProfilePage = () => {
   const navigate = useNavigate();
   const [leagues, setLeagues] = useState([]);

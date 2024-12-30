@@ -6,7 +6,6 @@ import UserSearchForm from '../components/forms/UserSearchForm';
 import Loader from '../components/spinner/Spinner';
 import SuccessMessage from '../components/successMessage/SuccessMessage';
 import useManagerCheck from '../hooks/useManagerCheck';
-import SuccessMessage from '../components/successMessage/SuccessMessage';
 const LeaguePage = () => {
   const { leagueId } = useParams();
   const [league, setLeague] = useState({});
