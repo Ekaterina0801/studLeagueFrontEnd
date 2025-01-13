@@ -20,8 +20,12 @@ const useTeams = (filters, sort, currentPage) => {
         if (!leagueId) {
           return;
         }
-        const teamsData = await getTeams({ leagueId,name }, { field, direction }, currentPage, 10); 
+        
 
+        const teamsData = await getTeams({ leagueId,name }, { field, direction }, currentPage, 10); 
+        console.log('li',leagueId);
+        if (leagueId==='')
+          teamsData = []
         console.log('Fetched teams data:', teamsData); 
         
   

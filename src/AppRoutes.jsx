@@ -11,6 +11,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ControversialsPage from "./pages/ControversialsPage";
 import PlayerPage from "./pages/PlayerPage";
 import TeamsPage from "./pages/TeamsPage";
+import UsersPage from "./pages/UsersPage";
 
 const AppRoutes = () => {
   
@@ -63,6 +64,7 @@ const AppRoutes = () => {
       
       {/* Tournaments Page Route */}
       <Route path="/tournaments" element={<TournamentsPage />} />
+      <Route path="/users" element={<UsersPage />} />
 
       {/* Reset Password Route */}
       <Route path="/reset-password" element={<ResetPasswordPage />} />

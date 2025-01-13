@@ -26,7 +26,7 @@ export const addNewTransfer = async (transferDTO) => {
             const response = await axios.post(`${API_URL}/transfers`, transferDTO, {
                 headers: getAuthHeaders(accessToken),
             });
-            console.log('response',response);
+            console.log('response',response.data);
             return response.data;
         });
     } catch (error) {

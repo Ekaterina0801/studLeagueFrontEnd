@@ -42,7 +42,7 @@ const Navbar = () => {
 
   return (
     <div className="navbar">
-      <div className="logo">Рейтинг "Имя розы"</div>
+      <div className="logo">Имя розы</div>
       <div className="nav-links">
         <NavLink to={`/teams`} className={({ isActive }) => (isActive ? "active-link" : "")}>Команды</NavLink>
         <NavLink to={`/tournaments`} className={({ isActive }) => (isActive ? "active-link" : "")}>Турниры</NavLink>

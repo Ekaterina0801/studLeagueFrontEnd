@@ -1,13 +1,14 @@
+import React from 'react';
 import ReactDOM from 'react-dom';
 import "./style.css";
 
-const SuccessMessage = ({ message }) => {
+const ErrorMessage = ({ message }) => {
   return ReactDOM.createPortal(
-    <div className="success-message">
+    <div className="error-message">
       {message}
     </div>,
     document.body 
   );
 };
 
-export default SuccessMessage;
+export default ErrorMessage;

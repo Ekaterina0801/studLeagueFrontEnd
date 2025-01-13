@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { getLeagueById,addManagerToLeague, deleteManagerFromLeague } from '../api/apiLeagues';
+import { getLeagueById,addManagerToLeague, deleteManagerFromLeague, addNewLeague } from '../api/apiLeagues';
 import Modal from '../components/forms/Modal/Modal';
 import UserSearchForm from '../components/forms/UserSearchForm';
 import Loader from '../components/spinner/Spinner';
 import SuccessMessage from '../components/successMessage/SuccessMessage';
 import useManagerCheck from '../hooks/useManagerCheck';
+import ErrorMessage from '../components/errorMessage/ErrorMessage';
+import useNewLeague from '../hooks/useNewLeague';
+
+
 const LeaguePage = () => {
   const { leagueId } = useParams();
   const [league, setLeague] = useState({});
@@ -13,9 +17,12 @@ const LeaguePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [message, setMessage] = useState("");
-  const [selectedManagerId, setSelectedManagerId] = useState("");
-  const isManager = true===useManagerCheck(leagueId);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [newLeagueName, setNewLeagueName] = useState("");
+  const selectedManagerId = "";
+  const isManager = true === useManagerCheck(leagueId).isManager;
 
   useEffect(() => {
     const fetchLeagueData = async () => {
@@ -23,6 +30,7 @@ const LeaguePage = () => {
         const fetchedLeague = await getLeagueById(leagueId);
         setLeague(fetchedLeague);
         setManagers(fetchedLeague.managers || []);
+        setNewLeagueName(fetchedLeague.name); 
       } catch (err) {
         setError("Ошибка при загрузке лиги");
       } finally {
@@ -33,6 +41,35 @@ const LeaguePage = () => {
     fetchLeagueData();
   }, [leagueId]);
 
+  const handleEditToggle = () => {
+    setIsEditing((prev) => !prev);
+  };
+
+  const handleLeagueNameChange = (e) => {
+    setNewLeagueName(e.target.value);
+  };
+
+  const handleLeagueNameUpdate = async () => {
+    setLoading(true);
+    const leagueDTO = {
+      id: league.id,
+      name: newLeagueName,
+      countExcludedGames: league.countExcludedGames || 0, 
+      systemResultId: league.systemResultId,
+    };
+    await addNewLeague(leagueDTO); 
+    try {
+
+      setLeague((prevLeague) => ({ ...prevLeague, name: newLeagueName })); 
+      setSuccessMessage("Название лиги успешно обновлено!");
+    } catch (err) {
+      setErrorMessage("Ошибка обновления названия лиги");
+    } finally {
+      setLoading(false);
+      setIsEditing(false);
+    }
+  };
+
   const handleManagerAdd = async (managerId) => {
     setLoading(true);
     try {
@@ -40,9 +77,9 @@ const LeaguePage = () => {
       const updatedLeague = await getLeagueById(leagueId);
       setLeague(updatedLeague);
       setManagers(updatedLeague.managers || []);
-      setMessage("Менеджер успешно добавлен!");
+      setSuccessMessage("Менеджер успешно добавлен!");
     } catch (err) {
-      setError("Ошибка добавления менеджера");
+      setErrorMessage("Ошибка добавления менеджера");
     } finally {
       setLoading(false);
     }
@@ -55,9 +92,9 @@ const LeaguePage = () => {
       const updatedLeague = await getLeagueById(leagueId);
       setLeague(updatedLeague);
       setManagers(updatedLeague.managers || []);
-      setMessage("Менеджер успешно удален");
+      setSuccessMessage("Менеджер успешно удален");
     } catch (err) {
-      setError("Ошибка удаления менеджера");
+      setErrorMessage("Ошибка удаления менеджера");
     } finally {
       setLoading(false);
     }
@@ -66,8 +103,6 @@ const LeaguePage = () => {
   const toggleModal = () => setShowModal((prev) => !prev);
 
   if (loading) return <Loader />;
-  if (error) return <p>{error}</p>;
-  console.log('isM',isManager);
   if (!isManager) {
     return (
       <div className="no-access">
@@ -80,8 +115,27 @@ const LeaguePage = () => {
   return (
     <div>
       {loading && <Loader />}
-      {message && <SuccessMessage message={message} />}
-      <h1>Редактирование лиги: {league.name}</h1>
+      {successMessage && <SuccessMessage message={successMessage} />}
+      {errorMessage && <ErrorMessage message={errorMessage} />}
+
+      <div>
+        {isEditing ? (
+          <div>
+            <input
+              type="text"
+              value={newLeagueName}
+              onChange={handleLeagueNameChange}
+            />
+            <button onClick={handleLeagueNameUpdate}>Сохранить</button>
+            <button onClick={handleEditToggle}>Отменить</button>
+          </div>
+        ) : (
+          <div>
+            <h1>{league.name}</h1>
+            <button onClick={handleEditToggle}>Редактировать название</button>
+          </div>
+        )}
+      </div>
 
       <h2>Менеджеры</h2>
       {managers.length > 0 ? (
@@ -130,4 +184,3 @@ const LeaguePage = () => {
 };
 
 export default LeaguePage;
-

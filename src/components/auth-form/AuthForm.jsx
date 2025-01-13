@@ -34,13 +34,13 @@ const AuthForm = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    console.log(`${name}: ${value}`); // Логируем изменения
+    console.log(`${name}: ${value}`); 
   };
 
   const validateForm = () => {
     const newErrors = {};
   
-    // Проверяем логин и пароль только если не режим восстановления пароля
+
     if (!isForgotPassword) {
       if (!formData.username) {
         newErrors.username = "Логин обязателен";
@@ -55,7 +55,7 @@ const AuthForm = () => {
       }
   
       if (!isLogin) {
-        // Дополнительные проверки для регистрации
+      
         if (!formData.confirm) {
           newErrors.confirm = "Требуется подтверждение пароля";
         } else if (formData.password !== formData.confirm) {
@@ -75,14 +75,14 @@ const AuthForm = () => {
         }
       }
     } else {
-      // Валидация для восстановления пароля
+  
       console.log('check');
       if (!formData.email) {
         newErrors.email = "Email обязателен для восстановления пароля";
       } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
         newErrors.email = "Некорректный формат email";
       }
-      console.log("Ошибки валидации:", newErrors); // Логируем ошибки валидации
+      console.log("Ошибки валидации:", newErrors); 
     }
   
     setErrors(newErrors);
@@ -93,11 +93,11 @@ const AuthForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Форма отправлена"); // Логируем факт вызова handleSubmit
+    console.log("Форма отправлена"); 
     if (validateForm()) {
       setLoading(true);
       setMessage("");
-      console.log("Форма валидна"); // Проверяем, проходит ли валидация
+      console.log("Форма валидна"); 
       try {
         let response;
   
@@ -155,7 +155,7 @@ const AuthForm = () => {
         console.error(error);
         setMessage(
           error.response?.data?.message ||
-            "Что-то пошло не так, повторите попытку"
+            "Неверные логин или пароль. Повторите попытку"
         );
       } finally {
         setLoading(false);

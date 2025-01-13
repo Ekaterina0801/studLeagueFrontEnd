@@ -15,9 +15,10 @@ import { deleteFlagFromTeam } from "../api/apiTeams";
 import { addNewTransfer } from "../api/apiTransfers";
 import PlayerSearchForm from "../components/forms/PlayerSearchForm";
 import useTeamsList from "../hooks/useTeamsList";
-import useSuccessMessage from "../hooks/useSuccessMessage";
 import { useModal } from "../hooks/useModal";
 import useManagerCheck from "../hooks/useManagerCheck";
+import SuccessMessage from "../components/successMessage/SuccessMessage";
+import ErrorMessage from "../components/errorMessage/ErrorMessage";
 const TeamPage = () => {
   const { teamId, leagueId } = useParams();
   const {
@@ -32,7 +33,9 @@ const TeamPage = () => {
     setFlags,
   } = useTeamData(teamId, leagueId);
   const teams = useTeamsList(leagueId);
-  const { successMessage, showSuccessMessage } = useSuccessMessage();
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
   const { showModal, modalType, setShowModal, setModalType } = useModal();
   const { isManager, errorManager } = useManagerCheck(leagueId);
 
@@ -83,10 +86,11 @@ const TeamPage = () => {
   
       await addNewPlayer(updatedPlayerForm);
   
-      showSuccessMessage("Новый игрок создан и успешно добавлен к команде");
+      setSuccessMessage("Новый игрок создан и успешно добавлен к команде");
       toggleModal();
       window.location.reload();
     } catch (err) {
+      setErrorMessage("Ошибка добавления игрока");
       console.error("Ошибка добавления игрока:", err);
     }
   };
@@ -100,9 +104,10 @@ const TeamPage = () => {
       const updatedTeam = await getTeamById(teamId);
       setTeam(updatedTeam);
       setFlags(updatedTeam.flags || []);
-      showSuccessMessage("Флаг успешно добавлен к команде");
+      setSuccessMessage("Флаг успешно добавлен к команде");
       toggleModal();
     } catch (err) {
+      setErrorMessage("Ошибка добавления флага");
       console.error("Ошибка добавления флага:", err);
     }
   };
@@ -120,9 +125,10 @@ const TeamPage = () => {
         setFlags(updatedTeam.flags || []);
     }, 2000);
       setNewFlagName("");
-      showSuccessMessage("Новый флаг успешно создан");
+      setSuccessMessage("Новый флаг успешно создан");
       toggleModal();
     } catch (err) {
+      setErrorMessage("Ошибка создания флага");
       console.error("Ошибка создания флага:", err);
     }
   };
@@ -136,7 +142,7 @@ const TeamPage = () => {
       setSuccessMessage("Игрок успешно добавлен");
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (err) {
-      setError("Ошибка добавления игрока к команде");
+      setErrorMessage("Ошибка добавления игрока к команде");
     }
   };
 
@@ -149,7 +155,7 @@ const TeamPage = () => {
       setSuccessMessage("Флаг успешно удален из команды");
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (err) {
-      setError("Ошибка удаления флага");
+      setErrorMessage("Ошибка удаления флага");
     }
   };
 
@@ -161,7 +167,7 @@ const TeamPage = () => {
       setSuccessMessage("Игрок успешно удален из команды");
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (err) {
-      setError("Ошибка удаления игрока");
+      setErrorMessage("Ошибка удаления игрока");
     }
   };
 
@@ -174,7 +180,7 @@ const TeamPage = () => {
       setTimeout(() => setSuccessMessage(""), 3000);
       window.location.reload();
     } catch (err) {
-      setError("Ошибка трансфера игрока");
+      setErrorMessage("Ошибка трансфера игрока");
     }
   };
 
@@ -189,9 +195,8 @@ const TeamPage = () => {
   return (
     <div>
       <h1>{team.name}</h1>
-      {successMessage && (
-        <div className="success-message">{successMessage}</div>
-      )}
+      {successMessage && <SuccessMessage message={successMessage} />}
+      {errorMessage && <ErrorMessage message={errorMessage} />}
 
       <h2>Флаги</h2>
       <div className="flags">

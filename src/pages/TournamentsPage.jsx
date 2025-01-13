@@ -21,6 +21,7 @@ import { addTeamsToTournament } from "../api/apiMak";
 import Loader from "../components/spinner/Spinner";
 import SuccessMessage from "../components/successMessage/SuccessMessage";
 import { addNewTournament } from "../api/apiTournaments";
+import ErrorMessage from "../components/errorMessage/ErrorMessage";
 const TournamentsPage = () => {
   const leagueId = useLeagueId();
   const dispatch = useDispatch();
@@ -29,7 +30,8 @@ const TournamentsPage = () => {
     useNewTournament(leagueId);
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [searchInput, setSearchInput] = useState("");
   const [existingTournamentId, setExistingTournamentId] = useState("");
@@ -61,9 +63,10 @@ const TournamentsPage = () => {
     try {
       await deleteTournamentFromLeague(leagueId, tournamentId);
       dispatch(removeTournament(tournamentId));
+      setSuccessMessage("Турнир успешно удален");
     } catch (error) {
       console.error("Ошибка при удалении турнира:", error);
-      alert("Не удалось удалить турнир. Попробуйте позже.");
+      setErrorMessage("Не удалось удалить турнир. Попробуйте позже");
     } finally {
       setLoading(false);
     }
@@ -90,12 +93,12 @@ const TournamentsPage = () => {
       }
 
       await addNewTournament(formattedTournament);
-      setMessage("Турнир успешно добавлен!");
+      setSuccessMessage("Турнир успешно добавлен!");
       refetch();
       toggleModal();
     } catch (error) {
       console.error("Ошибка при создании турнира:", error);
-      alert("Не удалось создать турнир.");
+      setErrorMessage("Не удалось создать турнир");
     }
     finally{
       setLoading(false);
@@ -127,10 +130,10 @@ const TournamentsPage = () => {
     try {
       await addTeamsToTournament(leagueId, siteTournamentId);
       refetch();
-      setMessage("Турнир с сайта успеiно добавлен!");
+      setSuccessMessage("Турнир с сайта успешно добавлен!");
     } catch (err) {
       console.error("Ошибка добавления турнира к лиге:", err);
-      alert("Не удалось добавить турнир.");
+      setErrorMessage("Не удалось добавить турнир");
     } finally {
       setLoading(false);
     }
@@ -160,7 +163,8 @@ const TournamentsPage = () => {
     <div>
       <h2>Турниры</h2>
       {loading && <Loader />}
-      {message && <SuccessMessage message={message} />}
+      {successMessage && <SuccessMessage message={successMessage} />}
+      {errorMessage && <ErrorMessage message={errorMessage} />}
       <SearchBar onSearch={handleSearch} />
       {isManager && (
         <button onClick={toggleModal}>

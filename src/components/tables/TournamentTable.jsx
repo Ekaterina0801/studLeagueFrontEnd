@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import moment from "moment";
 function TournamentTable({ tournaments, onSortChange, sortField, onTournamentRemove, showDeleteButton }) {
 
   const getSortIndicator = (field) => {
@@ -39,8 +39,8 @@ function TournamentTable({ tournaments, onSortChange, sortField, onTournamentRem
             <td>{index + 1}</td>
             <td><a href="#">{tournament.idSite}</a></td>
             <td><a href={`/tournaments/${tournament.id}/results`}>{tournament.name}</a></td>
-            <td>{tournament.dateStart}</td>
-            <td>{tournament.dateEnd}</td>
+            <td>{moment(tournament.dateStart).format("DD.MM.YYYY HH:mm")}</td>
+            <td>{moment(tournament.dateEnd).format("DD.MM.YYYY HH:mm")}</td>
             {showDeleteButton &&(
               <td>
               <span

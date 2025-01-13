@@ -15,6 +15,7 @@ import { deleteTeamFromLeague } from "../api/apiLeagues";
 import { removeTeam } from "../actions/teamsAction";
 import Loader from "../components/spinner/Spinner";
 import SuccessMessage from "../components/successMessage/SuccessMessage";
+import ErrorMessage from "../components/errorMessage/ErrorMessage";
 
 const TeamsPage = ({ leagues = [] }) => {
   const [filters, setFilters] = useState({ leagueId: '' });
@@ -23,7 +24,8 @@ const TeamsPage = ({ leagues = [] }) => {
   const { showModal, toggleModal } = useModal();
   const { searchInput, handleSearch } = useSearch(); 
   const { newTeam, handleChange, handleTeamSubmit, creation_message } = useNewTeam(); 
-  const [message, setMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const leagueId = useLeagueId(); 
@@ -58,10 +60,10 @@ const TeamsPage = ({ leagues = [] }) => {
     try {
       await deleteTeamFromLeague(leagueId, teamId);
       dispatch(removeTeam(teamId)); 
-      setMessage('Команда успешно удалена!');
+      setSuccessMessage('Команда успешно удалена!');
     } catch (error) {
       console.error("Ошибка при удалении команды:", error);
-      alert("Не удалось удалить команду. Попробуйте позже");
+      setErrorMessage("Не удалось удалить команду. Попробуйте позже");
     }
     finally{
       setLoading(false);
@@ -69,7 +71,7 @@ const TeamsPage = ({ leagues = [] }) => {
   };
 
   if (!filters.leagueId) {
-    return <div>Выберите лигу для отображения команд.</div>;
+    return <div>Выберите лигу для отображения команд</div>;
   }
 
   if (isLoading) {
@@ -83,7 +85,8 @@ const TeamsPage = ({ leagues = [] }) => {
   return (
     <MainContent>
        {loading && <Loader />} 
-       {message && <SuccessMessage message={message} />}
+       {successMessage && <SuccessMessage message={successMessage} />}
+       {errorMessage && <ErrorMessage message={errorMessage} />}
       <h2>Команды</h2>
       <SearchBar onSearch={handleSearch} />
       {isManager && (

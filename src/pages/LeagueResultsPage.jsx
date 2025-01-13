@@ -10,12 +10,14 @@ import { useLeagueData } from "../hooks/useLeagueData";
 import { changeSystemResult, updateExcludedGames } from "../api/apiLeagues";
 import Loader from "../components/spinner/Spinner";
 import SuccessMessage from "../components/successMessage/SuccessMessage";
+import ErrorMessage from "../components/errorMessage/ErrorMessage";
 const LeagueResults = () => {
   const leagueId = useLeagueId();
   const availableSystems = useAvailableSystems();
   const resultsData = useResultsData(leagueId);
   const leagueData = useLeagueData(leagueId);
-  const [message, setMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [selectedSystem, setSelectedSystem] = useState("");
   const [excludedGames, setExcludedGames] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -41,11 +43,12 @@ const LeagueResults = () => {
     setLoading(true); 
     try {
       await updateExcludedGames(leagueId, excludedGames);
-      setMessage("Количество игр успешно изменено!");
+      setSuccessMessage("Количество игр успешно изменено!");
       setTimeout(() => {
         window.location.reload();
       }, 500);
     } catch (error) {
+      setErrorMessage("Произошла ошибка редактирования");
       console.error("Ошибка:", error);
     } finally {
       setLoading(false); 
@@ -61,11 +64,12 @@ const LeagueResults = () => {
     setLoading(true); 
     try {
       await changeSystemResult(leagueId, selectedSystem);
-      setMessage("Система успешно изменена!");
+      setSuccessMessage("Система успешно изменена!");
       setTimeout(() => {
         window.location.reload();
       }, 500);
     } catch (error) {
+      setErrorMessage("Произошла ошибка редактирования");
       console.error("Ошибка:", error);
     } finally {
       setLoading(false); 
@@ -93,7 +97,8 @@ const LeagueResults = () => {
     <div>
       {loading && <Loader />} 
       <h1>Результаты лиги</h1>
-      {message && <SuccessMessage message={message} />}
+      {successMessage && <SuccessMessage message={successMessage} />}
+      {errorMessage && <ErrorMessage message={errorMessage} />}
       {isManager && (
         <button onClick={toggleModal}>Изменить систему результатов</button>
       )}

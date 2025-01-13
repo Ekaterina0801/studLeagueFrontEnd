@@ -1,6 +1,5 @@
 import React from "react";
-import Cookies from "js-cookie";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import { logout } from "../api/apiHeaders";
 import { deleteLeagueById, getLeaguesByUser } from "../api/apiLeagues";
 import { useState, useEffect } from "react";
@@ -8,19 +7,22 @@ import LeagueForm from "../components/forms/LeagueForm";
 import useNewLeague from "../hooks/useNewLeague";
 import { useModal } from "../hooks/useModal";
 import Modal from "../components/forms/Modal/Modal";
-import useManagerCheck from "../hooks/useManagerCheck";
 import Loader from "../components/spinner/Spinner";
 import { addNewLeague } from "../api/apiLeagues";
 import SuccessMessage from "../components/successMessage/SuccessMessage";
+import { getCurrentUser } from "../api/apiUsers";
+import ErrorMessage from "../components/errorMessage/ErrorMessage";
+
 const ProfilePage = () => {
   const navigate = useNavigate();
   const [leagues, setLeagues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { newLeague, systemResults, handleChange} = useNewLeague(); 
+  const { newLeague, systemResults, handleChange } = useNewLeague();
   const { showModal, toggleModal } = useModal();
-  const [message, setMessage] = useState('');
-
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     const fetchLeagues = async () => {
@@ -34,54 +36,70 @@ const ProfilePage = () => {
       }
     };
 
+    const fetchCurrentUser = async () => {
+      try {
+        const userData = await getCurrentUser();
+        setCurrentUser(userData);
+      } catch (err) {
+        console.error("Ошибка при получении текущего пользователя:", err);
+      }
+    };
+
     fetchLeagues();
+    fetchCurrentUser();
   }, []);
+
+  console.log(currentUser);
 
   const handleLogout = () => {
     logout();
-    navigate("/sign-in"); 
+    navigate("/sign-in");
   };
+
   const handleLeagueSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const leagueDTO = {
         name: newLeague.name,
-        countExcludedGames: newLeague.countExcludedGames || 0, 
+        countExcludedGames: newLeague.countExcludedGames || 0,
         systemResultId: newLeague.systemResultId,
       };
 
-      const result = await addNewLeague(leagueDTO);
-      setMessage('Лига добавлена успешно!');
+      await addNewLeague(leagueDTO);
+      setSuccessMessage("Лига добавлена успешно!");
       window.location.reload();
     } catch (error) {
-      console.error('Error adding new league:', error);
-      alert('Произошла ошибка при добавлении лиги.');
-    }
-    finally{
+      console.error("Error adding new league:", error);
+      setErrorMessage("Произошла ошибка при добавлении лиги.");
+    } finally {
       setLoading(false);
     }
   };
 
   const handleLeagueDelete = async (leagueId) => {
-    const confirmDelete = window.confirm("Вы уверены, что хотите удалить эту лигу?");
+    const confirmDelete = window.confirm(
+      "Вы уверены, что хотите удалить эту лигу?"
+    );
     if (!confirmDelete) return;
     setLoading(true);
     try {
-      await deleteLeagueById(leagueId); 
-      setLeagues((prevLeagues) => prevLeagues.filter((league) => league.id !== leagueId));
-      setMessage('Лига успешно удалена!');
+      await deleteLeagueById(leagueId);
+      setLeagues((prevLeagues) =>
+        prevLeagues.filter((league) => league.id !== leagueId)
+      );
+      setSuccessMessage("Лига успешно удалена!");
+      window.location.reload();
     } catch (err) {
       console.error("Ошибка при удалении лиги:", err);
-      alert("Не удалось удалить лигу. Попробуйте еще раз.");
-    }
-    finally{
+      setErrorMessage("Не удалось удалить лигу. Попробуйте еще раз.");
+    } finally {
       setLoading(false);
     }
   };
 
   if (loading) {
-    return <Loader />; 
+    return <Loader />;
   }
 
   if (error) {
@@ -90,13 +108,37 @@ const ProfilePage = () => {
 
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h1>Профиль пользователя</h1>
-      {loading && <Loader />} 
-      {message && <SuccessMessage message={message} />}
+      <h1>Мой профиль</h1>
+      {currentUser && (
+        <div className="container">
+          {" "}
+          <h3 className="title">
+            Мой никнейм: <span className="info">{currentUser.username}</span>
+          </h3>
+          <h3 className="title">
+            Мое ФИО: <span className="info">{currentUser.fullname}</span>
+          </h3>
+          <h3 className="title">
+            Моя почта: <span className="info">{currentUser.email}</span>
+          </h3>
+          <h3 className="title">
+            Роль: <span className="info">{currentUser.role.name}</span>
+          </h3>
+        </div>
+      )}
+
+      {loading && <Loader />}
+      {successMessage && <SuccessMessage message={successMessage} />}
+      {errorMessage && <ErrorMessage message={errorMessage} />}
       <button onClick={handleLogout} style={logoutButtonStyle}>
         Выйти из профиля
       </button>
-      <h2>Ваши лиги</h2>
+      {currentUser && currentUser.role.name === "ROLE_ADMIN" && (
+        <button onClick={() => navigate("/users")}>
+          Показать всех пользователей
+        </button>
+      )}
+      <h2>Мои лиги</h2>
       <button onClick={toggleModal}>Добавить новую лигу</button>
       {showModal && (
         <Modal show={showModal} onClose={toggleModal}>
@@ -145,8 +187,17 @@ const ProfilePage = () => {
   );
 };
 
+const showUsersButtonStyle = {
+  padding: "10px 20px",
+  fontSize: "16px",
+  backgroundColor: "#007BFF",
+  color: "#fff",
+  border: "none",
+  borderRadius: "5px",
+  cursor: "pointer",
+  margin: "10px 0",
+};
 
-// Стили кнопки (опционально)
 const logoutButtonStyle = {
   padding: "10px 20px",
   fontSize: "16px",
@@ -156,5 +207,8 @@ const logoutButtonStyle = {
   borderRadius: "5px",
   cursor: "pointer",
 };
+
+
+
 
 export default ProfilePage;
